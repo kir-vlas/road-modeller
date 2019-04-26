@@ -1,8 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
 
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
@@ -10,8 +8,8 @@ const NODE_ENV = process.env.NODE_ENV;
 console.log("BUILD MODE IS " + NODE_ENV);
 
 
-const sourcesPath = './src/main/resources/static';
 const outputPath = './target/classes/static/dist';
+const sourcesPath = './src/main/resources/static';
 
 module.exports = {
     entry: {
@@ -79,7 +77,6 @@ module.exports = {
                 NODE_ENV: JSON.stringify(NODE_ENV)
             }
         }),
-        //new BundleAnalyzerPlugin()
 
     ],
     resolve: {
@@ -99,19 +96,12 @@ module.exports = {
 
 if (NODE_ENV === 'production') {
     module.exports.devtool = 'none';
-    // http://vue-loader.vuejs.org/en/workflow/production.html
     module.exports.plugins = (module.exports.plugins).concat([
         new UglifyJSPlugin({
             sourceMap: false,
             parallel: true
         }),
         new webpack.optimize.ModuleConcatenationPlugin()
-        /*,
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.CommonsChunkPlugin({
-            children: true,
-            async: true,
-        })*/
     ]);
 }
 
