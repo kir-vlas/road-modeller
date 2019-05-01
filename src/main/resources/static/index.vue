@@ -2,8 +2,7 @@
     <div>
         <h2>HW!</h2>
         <button @click="clickButton">43643</button>
-
-        <input v-model="val"></input>
+        <textarea v-model="val"></textarea>
     </div>
 </template>
 
@@ -12,25 +11,25 @@
         name: 'index',
         data() {
             return {
-            val: "123"
-        }},
-        created(){
-            this.$options.sockets.onmessage = (data) => this.val = data.data
+                val: "123",
+                active: false,
+                num: 123
+            }
         },
-        sockets: {
-            data(data){
-                console.log(data)
-            },
-            connect: function () {
-                console.log('socket connected')
-            },
-            customEmit: function (data) {
-                console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
+        created() {
+            this.$options.sockets.onmessage = (data) => {
+                console.log(data);
+                this.val = JSON.parse(data.data).uuid
             }
         },
         methods: {
             clickButton: function () {
-                this.$socket.send(this.val);
+                this.active = !this.active;
+                if (!this.active) {
+                    clearInterval(this.num);
+                } else {
+                    this.num = setInterval(() =>  this.$socket.send(this.val), 1000);
+                }
             }
         }
     }

@@ -1,7 +1,6 @@
-package com.drakezzz.roadmodeller.entity;
+package com.drakezzz.roadmodeller.persistence.entity;
 
 import lombok.Data;
-import org.springframework.data.geo.Point;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -25,8 +24,6 @@ public class Car {
 
     private boolean isRefreshed;
 
-    private int roadLane;
-
     private boolean isLeader;
 
     private boolean waitGreenLight;
@@ -35,7 +32,6 @@ public class Car {
 
     private LocalTime waitStartTime;
 
-    private Point coordinates;
-
+    private RoadLane roadLane;
 
 }

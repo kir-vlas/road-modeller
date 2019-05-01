@@ -1,4 +1,4 @@
-package com.drakezzz.roadmodeller.entity;
+package com.drakezzz.roadmodeller.persistence.entity;
 
 public enum LightStatus {
     RED,
