@@ -32,6 +32,6 @@ public class Car {
 
     private LocalTime waitStartTime;
 
-    private RoadLane roadLane;
+    private RoadLane currentLane;
 
 }

@@ -2,25 +2,26 @@ package com.drakezzz.roadmodeller.executor.impl;
 
 import com.drakezzz.roadmodeller.executor.ContiniusActionExecutor;
 import com.drakezzz.roadmodeller.persistence.entity.ModelState;
-import org.springframework.context.annotation.Primary;
+import com.drakezzz.roadmodeller.web.dto.ModelSettings;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-@Primary
+//@Primary
 public class MockActionExecutor implements ContiniusActionExecutor {
 
     @Override
-    public String initAction() {
-        return null;
+    public String initAction(ModelSettings settings) {
+        return UUID.randomUUID().toString();
     }
 
     @Override
     public ModelState executeAction(String actionId) {
         ModelState modelState = new ModelState();
-        UUID uuid = UUID.randomUUID();
-        modelState.setUuid(uuid.toString());
+        modelState.setUuid(actionId);
+        modelState.setStep(RandomUtils.nextInt(0, 1000));
         return modelState;
     }
 }

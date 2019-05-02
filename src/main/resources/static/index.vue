@@ -1,8 +1,10 @@
 <template>
     <div>
         <h2>HW!</h2>
-        <button @click="clickButton">43643</button>
+        <button @click="clickButton">model</button>
+        <button @click="init">init</button>
         <textarea v-model="val"></textarea>
+        <textarea v-model="id"></textarea>
     </div>
 </template>
 
@@ -13,13 +15,24 @@
             return {
                 val: "123",
                 active: false,
-                num: 123
+                num: 123,
+                id: ""
             }
         },
         created() {
             this.$options.sockets.onmessage = (data) => {
                 console.log(data);
-                this.val = JSON.parse(data.data).uuid
+                let isCompleted = JSON.parse(data.data).isCompleted;
+                if (isCompleted) {
+                    this.active = false;
+                    console.log("END");
+                    clearInterval(this.num);
+                }
+                this.val = data.data
+            };
+            this.$options.sockets.onclose = (data) => {
+                this.active = false;
+                clearInterval(this.num);
             }
         },
         methods: {
@@ -28,8 +41,14 @@
                 if (!this.active) {
                     clearInterval(this.num);
                 } else {
-                    this.num = setInterval(() =>  this.$socket.send(this.val), 1000);
+                    this.num = setInterval(() =>  this.$socket.send(this.id), 16);
                 }
+            },
+            init: function () {
+                this.$http.get("http://localhost:8090/init")
+                    .then(res => {
+                        this.id = res.body.id
+                    });
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.drakezzz.roadmodeller.persistence.entity;
 
+import com.drakezzz.roadmodeller.model.entity.Attribute;
+import com.drakezzz.roadmodeller.web.dto.ModelSettings;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
@@ -16,7 +18,7 @@ public class ModelState {
 
     private Set<Driver> drivers;
 
-    private int step;
+    private Integer step;
 
     private BigDecimal time;
 
@@ -35,5 +37,25 @@ public class ModelState {
     private List<Sidewalk> sidewalks;
 
     private List<Pedestrian> pedestrians;
+
+    private List<Attribute> attributes;
+
+    private Boolean isCompleted;
+
+    public static ModelState of(ModelSettings settings) {
+        ModelState modelState = new ModelState();
+        modelState.setDrivers(settings.getDrivers());
+        modelState.setNetwork(settings.getNetwork());
+        modelState.setMaxDuration(settings.getMaxDuration());
+        modelState.setTimeDelta(settings.getTimeDelta());
+        modelState.setAttributes(settings.getAttributes());
+
+        return modelState;
+    }
+
+    public void incrementStep() {
+        step++;
+        time = time.add(timeDelta);
+    }
 
 }

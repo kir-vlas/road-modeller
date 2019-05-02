@@ -8,19 +8,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class IntelligentDriverModel implements DriverModel {
 
-    private static final Attribute<Double> V0 = new Attribute<>("IDM_Desired_Speed", 0.0);
+    public static final Attribute<Double> V0 = new Attribute<>("IDM_Desired_Speed", 0.0);
 
-    private static final Attribute<Double> T = new Attribute<>("Driver_Safe_Time_Headway", 1.2);
+    public static final Attribute<Double> T = new Attribute<>("Driver_Safe_Time_Headway", 1.2);
 
-    private static final Attribute<Double> A = new Attribute<>("IDM_Acceleration", 1.25);
+    public static final Attribute<Double> A = new Attribute<>("IDM_Acceleration", 1.25);
 
-    private static final Attribute<Double> B = new Attribute<>("IDM_Deceleration", 2.09);
+    public static final Attribute<Double> B = new Attribute<>("IDM_Deceleration", 2.09);
 
-    private static final Attribute<Double> S0 = new Attribute<>("IDM_Stopping_Distance", 3.0);
+    public static final Attribute<Double> S0 = new Attribute<>("IDM_Stopping_Distance", 3.0);
 
-    private static final Attribute<Double> F_SPEED = new Attribute<>("Driver_Speed_Limit_Adherence_Factor", 1.0);
+    public static final Attribute<Double> F_SPEED = new Attribute<>("Driver_Speed_Limit_Adherence_Factor", 1.0);
 
-    private static final Attribute<Integer> DELTA = new Attribute<>("Acceleration_Exponent", 4);
+    public static final Attribute<Integer> DELTA = new Attribute<>("Acceleration_Exponent", 4);
 
     @Override
     public double acceleration(Driver driver, double distanceToBlockingObject, double blockingObjectSpeed) {
@@ -38,7 +38,7 @@ public class IntelligentDriverModel implements DriverModel {
     @Override
     public double updateDesiredVelocity(Driver driver) {
         double vMax = driver.getCar().getMaxSpeed();
-        double laneSpeedLimit = driver.getCar().getRoadLane().getLegalMaxSpeedInMetersPerSec();
+        double laneSpeedLimit = driver.getCar().getCurrentLane().getLegalMaxSpeedInMetersPerSec();
         double desiredVelocity = desiredVelocity(vMax, laneSpeedLimit, driver.getAttributeValue(F_SPEED));
         driver.setAttribute(V0, desiredVelocity);
         return driver.getAttributeValue(V0);

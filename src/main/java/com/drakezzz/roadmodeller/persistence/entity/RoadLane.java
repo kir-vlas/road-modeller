@@ -30,7 +30,7 @@ public class RoadLane {
 
     private int destination = 0;
 
-    private double maxSpeedLimit = 60;
+    private double maxSpeedLimit;
 
     public double getLegalMaxSpeedInMetersPerSec() {
         return maxSpeedLimit/3.6;
