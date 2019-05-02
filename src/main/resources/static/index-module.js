@@ -25,6 +25,7 @@ import {
     Upload
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import VueNativeSock from 'vue-native-websocket'
 
 //
 Vue.use(Carousel);
@@ -49,6 +50,9 @@ Vue.use(VueResource);
 Vue.use(Col);
 Vue.use(Table);
 Vue.use(Row);
+
+
+Vue.use(VueNativeSock, 'ws://localhost:8090/event-tick');
 
 Vue.component("index", index);
 
