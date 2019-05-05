@@ -1,6 +1,7 @@
 package com.drakezzz.roadmodeller.web.handler;
 
 import com.drakezzz.roadmodeller.executor.ContiniusActionExecutor;
+import com.drakezzz.roadmodeller.web.dto.ModelDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,7 @@ public class RoadModellerWebSocketHandler implements WebSocketHandler {
                 webSocketSession.receive()
                         .map(WebSocketMessage::getPayloadAsText)
                         .map(actionExecutor::executeAction)
+                        .map(ModelDto::of)
                         .map(this::serialize)
                         .map(webSocketSession::textMessage));
     }

@@ -4,6 +4,6 @@ import com.drakezzz.roadmodeller.persistence.entity.ModelState;
 
 public interface TrafficGenerator {
 
-    ModelState generateTraffic();
+    ModelState generateTraffic(ModelState modelState);
 
 }

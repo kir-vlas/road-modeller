@@ -3,7 +3,7 @@
         <h2>Моделирование движения транспорта</h2>
         <div class="manipulation">
             <button class="init-button" @click="init">Создать модель</button>
-            <button class="model-button" @click="model">Начать моделирование</button>
+            <button class="model-button" @click="model">{{!this.active ? "Запустить моделирование": "Остановить моделирование"}}</button>
             <div class="inputs">
                 <label>
                     Идентификатор модели
@@ -13,7 +13,8 @@
                     Частота:
                     {{freq}}
                     <div class="slider-container">
-                        <input type="range" class="slider" name="freq" min="1" max="144" v-on:click="changeSpeed" v-model="freq"/>
+                        <input type="range" class="slider" name="freq" min="1" max="144" v-on:click="changeSpeed"
+                               v-model="freq"/>
                     </div>
                 </label>
             </div>
@@ -49,7 +50,7 @@
                 const modelState = JSON.parse(data.data);
                 let isCompleted = modelState.isCompleted;
                 if (isCompleted) {
-                    this.stats = modelState;
+                    this.getStats();
                     this.active = false;
                     console.log("END");
                     clearInterval(this.num);
@@ -63,7 +64,7 @@
         },
         mounted() {
             this.provider.context = this.$refs['model-container'].getContext('2d');
-            this.$refs['model-container'].width = 5000;
+            this.$refs['model-container'].width = 950;
             this.$refs['model-container'].height = 1000;
         },
         methods: {
@@ -78,6 +79,12 @@
                     this.num = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
                 }
             },
+            getStats :function () {
+                this.$http.get(`http://localhost:8090/model/${this.id}`)
+                    .then(res => {
+                        this.stats = res.body;
+                    });
+            },
             init: function () {
                 if (this.active) {
                     clearInterval(this.num);
@@ -89,14 +96,19 @@
                     });
             },
             render: function (modelState) {
-                this.provider.context.clearRect(0, 0, 5000, 1000);
+                this.provider.context.fillStyle = "#dbebb9";
+                this.provider.context.fillRect(0, 0, 950, 1000);
                 modelState.network.forEach((roadLane) => {
                     const coords = roadLane.coordinates;
-                    this.provider.context.strokeRect(coords[0].x, coords[0].y, coords[1].x, 10)
+                    this.provider.context.fillStyle = "gray";
+                    this.provider.context.fillRect(coords[0].x, coords[0].y, coords[1].x, 10)
                 });
-                modelState.drivers.forEach((driver) => {
-                    this.provider.context.strokeRect(driver.currentCoordinates.x, driver.currentCoordinates.y, 10, 10)
-                });
+                if (modelState.drivers) {
+                    modelState.drivers.forEach((driver) => {
+                        this.provider.context.fillStyle = "red";
+                        this.provider.context.fillRect(driver.currentCoordinates.x, driver.currentCoordinates.y, 10, 10)
+                    });
+                }
             },
             changeSpeed: function () {
                 if (!this.active) {
@@ -161,12 +173,15 @@
         width: 700px;
         height: 993px;
     }
-    .main-model{
+
+    .main-model {
         display: flex;
     }
-    .slider-container{
+
+    .slider-container {
         width: 500px;
     }
+
     .slider {
         -webkit-appearance: none;
         width: 100%;

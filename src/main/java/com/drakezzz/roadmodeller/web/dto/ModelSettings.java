@@ -22,6 +22,6 @@ public class ModelSettings {
 
     private BigDecimal timeDelta;
 
-    private Boolean isNeedGenerate;
+    private Boolean isNotInitialized;
 
 }
