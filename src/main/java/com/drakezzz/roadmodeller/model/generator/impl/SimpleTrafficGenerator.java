@@ -5,20 +5,18 @@ import com.drakezzz.roadmodeller.model.generator.TrafficGenerator;
 import com.drakezzz.roadmodeller.model.impl.IntelligentDriverModel;
 import com.drakezzz.roadmodeller.model.random.RandomProvider;
 import com.drakezzz.roadmodeller.persistence.entity.*;
+import org.apache.commons.lang3.RandomUtils;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Simple model builder with one road and one driver which moves directly to destination point
- */
+
 @Service
 public class SimpleTrafficGenerator implements TrafficGenerator {
 
@@ -34,38 +32,30 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
     }
 
     @Override
-    public ModelState generateTraffic() {
-        ModelState modelState = new ModelState();
-        List<RoadLane> network = buildNetwork();
-        modelState.setNetwork(network);
-        modelState.setDrivers(createDrivers(network));
-        modelState.setMaxDuration(BigDecimal.valueOf(5000));
-        modelState.setTimeDelta(BigDecimal.valueOf(5));
+    public ModelState generateTraffic(ModelState modelState) {
+        modelState.getDrivers().addAll(createDrivers(modelState.getNetwork()));
         modelState.setCars(modelState.getDrivers().stream().map(Driver::getCar).collect(Collectors.toList()));
         return modelState;
     }
 
-    private List<RoadLane> buildNetwork() {
-        RoadLane roadLane = new RoadLane();
-        roadLane.setMaxSpeedLimit(60);
-        List<Point> coordinates = new ArrayList<>();
-        coordinates.add(new Point(5,5));
-        coordinates.add(new Point(5005,5));
-        roadLane.setCoordinates(coordinates);
-        roadLane.setLength(5000);
-        roadLane.setCanTurnLeft(false);
-        roadLane.setCanTurnRight(false);
-        return Collections.singletonList(roadLane);
-    }
-
     private Set<Driver> createDrivers(List<RoadLane> network) {
         Driver driver = new Driver();
+        driver.setId(UUID.randomUUID().toString());
         driver.setAttributeList(new ArrayList<>());
         driver.setCar(buildCar(network));
-        Point point = new Point(10,5);
-        driver.setCurrentCoordinates(point);
-        driver.setOriginCoordinates(point);
-        driver.setDestinationCoordinates(new Point(4005,5));
+        Point originPoint1 = new Point(10,500);
+        Point destPoint1 = new Point(900,500);
+        Point originPoint2 = new Point(900,512);
+        Point destPoint2 = new Point(10,512);
+        if (RandomUtils.nextInt(1,100) < 50) {
+            driver.setOriginCoordinates(originPoint1);
+            driver.setCurrentCoordinates(originPoint1);
+            driver.setDestinationCoordinates(destPoint1);
+        } else {
+            driver.setOriginCoordinates(originPoint2);
+            driver.setCurrentCoordinates(originPoint2);
+            driver.setDestinationCoordinates(destPoint2);
+        }
         appendStochasticParameters(driver);
         return Sets.newSet(driver);
     }

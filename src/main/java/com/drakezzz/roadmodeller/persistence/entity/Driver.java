@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 public class Driver {
 
+    private String id;
+
     private Car car;
 
     private Point currentCoordinates;
@@ -19,6 +21,8 @@ public class Driver {
     private Point destinationCoordinates;
 
     private List<Attribute> attributeList;
+
+    private boolean isFinished;
 
     @SuppressWarnings("unchecked")
     public <T> T getAttributeValue(Attribute attribute) {
