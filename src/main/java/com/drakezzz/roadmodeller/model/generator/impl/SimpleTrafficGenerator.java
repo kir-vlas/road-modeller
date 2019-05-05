@@ -39,7 +39,7 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
         List<RoadLane> network = buildNetwork();
         modelState.setNetwork(network);
         modelState.setDrivers(createDrivers(network));
-        modelState.setMaxDuration(BigDecimal.valueOf(500));
+        modelState.setMaxDuration(BigDecimal.valueOf(5000));
         modelState.setTimeDelta(BigDecimal.valueOf(5));
         modelState.setCars(modelState.getDrivers().stream().map(Driver::getCar).collect(Collectors.toList()));
         return modelState;
@@ -72,7 +72,7 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
 
     private Car buildCar(List<RoadLane> network) {
         Car car = new Car();
-        car.setSpeed(20);
+        car.setSpeed(2);
         car.setCurrentLane(network.get(0));
         car.setDirection(Direction.DIRECT);
         car.setCanChangeRoadLane(false);

@@ -1,10 +1,31 @@
 <template>
-    <div>
-        <h2>HW!</h2>
-        <button @click="clickButton">model</button>
-        <button @click="init">init</button>
-        <textarea v-model="val"></textarea>
-        <textarea v-model="id"></textarea>
+    <div class="container">
+        <h2>Моделирование движения транспорта</h2>
+        <div class="manipulation">
+            <button class="init-button" @click="init">Создать модель</button>
+            <button class="model-button" @click="model">Начать моделирование</button>
+            <div class="inputs">
+                <label>
+                    Идентификатор модели
+                    <input name="model-id" class="model-id" v-model="id"/>
+                </label>
+                <label>
+                    Частота:
+                    {{freq}}
+                    <div class="slider-container">
+                        <input type="range" class="slider" name="freq" min="1" max="144" v-on:click="changeSpeed" v-model="freq"/>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="main-model">
+            <div class="render">
+                <canvas ref="model-container"></canvas>
+            </div>
+            <div class="stats">
+                <textarea readonly class="stats-box">{{stats}}</textarea>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -13,43 +34,166 @@
         name: 'index',
         data() {
             return {
-                val: "123",
                 active: false,
-                num: 123,
-                id: ""
+                num: 0,
+                freq: 60,
+                provider: {
+                    context: null
+                },
+                id: "",
+                stats: ""
             }
         },
         created() {
             this.$options.sockets.onmessage = (data) => {
-                console.log(data);
-                let isCompleted = JSON.parse(data.data).isCompleted;
+                const modelState = JSON.parse(data.data);
+                let isCompleted = modelState.isCompleted;
                 if (isCompleted) {
+                    this.stats = modelState;
                     this.active = false;
                     console.log("END");
                     clearInterval(this.num);
                 }
-                this.val = data.data
+                this.render(modelState);
             };
-            this.$options.sockets.onclose = (data) => {
+            this.$options.sockets.onclose = () => {
                 this.active = false;
                 clearInterval(this.num);
             }
         },
+        mounted() {
+            this.provider.context = this.$refs['model-container'].getContext('2d');
+            this.$refs['model-container'].width = 5000;
+            this.$refs['model-container'].height = 1000;
+        },
         methods: {
-            clickButton: function () {
+            model: function () {
+                if (!this.id) {
+                    return;
+                }
                 this.active = !this.active;
                 if (!this.active) {
                     clearInterval(this.num);
                 } else {
-                    this.num = setInterval(() =>  this.$socket.send(this.id), 16);
+                    this.num = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
                 }
             },
             init: function () {
+                if (this.active) {
+                    clearInterval(this.num);
+                    this.active = false;
+                }
                 this.$http.get("http://localhost:8090/init")
                     .then(res => {
                         this.id = res.body.id
                     });
+            },
+            render: function (modelState) {
+                this.provider.context.clearRect(0, 0, 5000, 1000);
+                modelState.network.forEach((roadLane) => {
+                    const coords = roadLane.coordinates;
+                    this.provider.context.strokeRect(coords[0].x, coords[0].y, coords[1].x, 10)
+                });
+                modelState.drivers.forEach((driver) => {
+                    this.provider.context.strokeRect(driver.currentCoordinates.x, driver.currentCoordinates.y, 10, 10)
+                });
+            },
+            changeSpeed: function () {
+                if (!this.active) {
+                    return;
+                }
+                clearInterval(this.num);
+                this.num = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
             }
         }
     }
 </script>
+
+<style>
+    body {
+        width: 100%;
+        font-family: Arial;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .manipulation {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .model-id {
+        width: 300px;
+    }
+
+    .render {
+        display: flex;
+        overflow: scroll;
+        width: 1000px;
+        height: 1000px;
+        max-width: 1500px;
+        max-height: 2000px;
+    }
+
+    .init-button {
+        width: 200px;
+    }
+
+    .model-button {
+        width: 200px;
+    }
+
+    .inputs {
+        display: flex;
+        width: 500px;
+        justify-content: space-between;
+    }
+
+    .stats {
+        width: 700px;
+    }
+
+    .stats-box {
+        width: 700px;
+        height: 993px;
+    }
+    .main-model{
+        display: flex;
+    }
+    .slider-container{
+        width: 500px;
+    }
+    .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 15px;
+        border-radius: 5px;
+        background: #d3d3d3;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+    }
+</style>
