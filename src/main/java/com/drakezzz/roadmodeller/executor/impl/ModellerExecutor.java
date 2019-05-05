@@ -59,7 +59,6 @@ public class ModellerExecutor implements ContiniusActionExecutor {
                 modelState = trafficGenerator.generateTraffic(modelState);
             }
             Set<Driver> drivers = modelState.getDrivers();
-            checkCollissions(drivers);
             drivers.forEach(driver -> {
                 Point currentCoordinates = driver.getCurrentCoordinates();
                 Point destCoordinates = driver.getDestinationCoordinates();
@@ -71,6 +70,7 @@ public class ModellerExecutor implements ContiniusActionExecutor {
                     driver.setFinished(true);
                 }
             });
+            checkCollissions(drivers);
             drivers.removeIf(Driver::isFinished);
         } else {
             modelState.setIsCompleted(true);

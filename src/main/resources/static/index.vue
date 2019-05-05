@@ -18,6 +18,7 @@
                     </div>
                 </label>
             </div>
+            <span v-if="cars">Количество машин на дороге: {{this.cars}}</span>
         </div>
         <div class="main-model">
             <div class="render">
@@ -42,7 +43,8 @@
                     context: null
                 },
                 id: "",
-                stats: ""
+                stats: "",
+                cars: 0
             }
         },
         created() {
@@ -100,12 +102,13 @@
                 this.provider.context.fillRect(0, 0, 950, 1000);
                 modelState.network.forEach((roadLane) => {
                     const coords = roadLane.coordinates;
-                    this.provider.context.fillStyle = "gray";
+                    this.provider.context.fillStyle = "#c6c1bf";
                     this.provider.context.fillRect(coords[0].x, coords[0].y, coords[1].x, 10)
                 });
                 if (modelState.drivers) {
+                    this.cars = modelState.drivers.length;
                     modelState.drivers.forEach((driver) => {
-                        this.provider.context.fillStyle = "red";
+                        this.provider.context.fillStyle = "#8597eb";
                         this.provider.context.fillRect(driver.currentCoordinates.x, driver.currentCoordinates.y, 10, 10)
                     });
                 }
