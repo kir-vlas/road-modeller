@@ -83,7 +83,7 @@
                 }
             },
             getStats :function () {
-                this.$http.get(`http://localhost:8090/model/${this.id}`)
+                this.$http.get(`/model/${this.id}`)
                     .then(res => {
                         this.stats = res.body;
                     });
@@ -93,7 +93,7 @@
                     clearInterval(this.num);
                     this.active = false;
                 }
-                this.$http.get("http://localhost:8090/init")
+                this.$http.get("/init")
                     .then(res => {
                         this.id = res.body.id
                     });
@@ -103,13 +103,26 @@
                 this.provider.context.fillRect(0, 0, 950, 1000);
                 modelState.network.forEach((roadLane) => {
                     const coords = roadLane.coordinates;
-                    this.provider.context.beginPath();
-                    this.provider.context.moveTo(coords[0].x, coords[0].y);
-                    this.provider.context.lineTo(coords[1].x, coords[0].y);
-                    this.provider.context.lineTo(coords[1].x, coords[1].y);
-                    this.provider.context.lineTo(coords[0].x, coords[1].y);
-                    this.provider.context.fillStyle = "#c6c1bf";
-                    this.provider.context.stroke();
+                    if (roadLane.horizontal) {
+                        console.log(roadLane);
+                        this.provider.context.beginPath();
+                        this.provider.context.moveTo(coords[0].x, coords[0].y);
+                        this.provider.context.lineTo(coords[0].x, coords[0].y + 10);
+                        this.provider.context.lineTo(coords[1].x, coords[1].y + 10);
+                        this.provider.context.lineTo(coords[1].x, coords[1].y);
+                        this.provider.context.closePath();
+                        this.provider.context.fillStyle = "#c6c1bf";
+                        this.provider.context.stroke();
+                    } else {
+                        this.provider.context.beginPath();
+                        this.provider.context.moveTo(coords[0].x, coords[0].y);
+                        this.provider.context.lineTo(coords[0].x + 10, coords[0].y);
+                        this.provider.context.lineTo(coords[1].x + 10, coords[1].y);
+                        this.provider.context.lineTo(coords[1].x, coords[1].y);
+                        this.provider.context.closePath();
+                        this.provider.context.fillStyle = "#c6c1bf";
+                        this.provider.context.stroke();
+                    }
                     this.provider.context.closePath();
                 });
                 if (modelState.drivers) {

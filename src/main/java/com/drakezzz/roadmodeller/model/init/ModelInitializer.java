@@ -17,6 +17,11 @@ public interface ModelInitializer {
         RoadLane roadLane = new RoadLane();
         roadLane.setMaxSpeedLimit(60);
         List<Point> coordinates = new ArrayList<>();
+        if (origin.getX() != dest.getX()) {
+            roadLane.setHorizontal(true);
+        } else {
+            roadLane.setHorizontal(false);
+        }
         coordinates.add(origin);
         coordinates.add(dest);
         roadLane.setCoordinates(coordinates);
