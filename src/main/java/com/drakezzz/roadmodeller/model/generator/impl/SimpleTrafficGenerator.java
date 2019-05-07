@@ -43,10 +43,10 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
         driver.setId(UUID.randomUUID().toString());
         driver.setAttributeList(new ArrayList<>());
         driver.setCar(buildCar(network));
-        Point originPoint1 = new Point(10,500);
-        Point destPoint1 = new Point(900,500);
-        Point originPoint2 = new Point(900,512);
-        Point destPoint2 = new Point(10,512);
+        Point originPoint1 = new Point(50,200);
+        Point destPoint1 = new Point(750,200);
+        Point originPoint2 = new Point(760,210);
+        Point destPoint2 = new Point(50,210);
         if (RandomUtils.nextInt(1,100) < 50) {
             driver.setOriginCoordinates(originPoint1);
             driver.setCurrentCoordinates(originPoint1);

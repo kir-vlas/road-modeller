@@ -42,9 +42,13 @@ public class QuartModelInitializer implements ModelInitializer {
     private List<RoadLane> buildNetwork() {
         List<RoadLane> network = new LinkedList<>();
         network.add(buildRoad(new Point(200,50), new Point(200, 760)));
+        network.add(buildRoad(new Point(210,50), new Point(210, 760)));
         network.add(buildRoad(new Point(50,200), new Point(760, 200)));
+        network.add(buildRoad(new Point(50,210), new Point(760, 210)));
         network.add(buildRoad(new Point(600,50), new Point(600, 760)));
+        network.add(buildRoad(new Point(610,50), new Point(610, 760)));
         network.add(buildRoad(new Point(50,600), new Point(760, 600)));
+        network.add(buildRoad(new Point(50,610), new Point(760, 610)));
         return network;
     }
 
