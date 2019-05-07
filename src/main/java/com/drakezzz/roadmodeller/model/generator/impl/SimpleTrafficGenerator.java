@@ -6,14 +6,10 @@ import com.drakezzz.roadmodeller.model.impl.IntelligentDriverModel;
 import com.drakezzz.roadmodeller.model.random.RandomProvider;
 import com.drakezzz.roadmodeller.persistence.entity.*;
 import org.apache.commons.lang3.RandomUtils;
-import org.mockito.internal.util.collections.Sets;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -39,25 +35,22 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
     }
 
     private Set<Driver> createDrivers(List<RoadLane> network) {
-        Driver driver = new Driver();
-        driver.setId(UUID.randomUUID().toString());
-        driver.setAttributeList(new ArrayList<>());
-        driver.setCar(buildCar(network));
-        Point originPoint1 = new Point(50,200);
-        Point destPoint1 = new Point(750,200);
-        Point originPoint2 = new Point(760,210);
-        Point destPoint2 = new Point(50,210);
-        if (RandomUtils.nextInt(1,100) < 50) {
-            driver.setOriginCoordinates(originPoint1);
-            driver.setCurrentCoordinates(originPoint1);
-            driver.setDestinationCoordinates(destPoint1);
-        } else {
-            driver.setOriginCoordinates(originPoint2);
-            driver.setCurrentCoordinates(originPoint2);
-            driver.setDestinationCoordinates(destPoint2);
-        }
-        appendStochasticParameters(driver);
-        return Sets.newSet(driver);
+       Set<Driver> newDrivers = new HashSet<>();
+        network.forEach(road -> {
+            if (RandomUtils.nextInt(1,100) < 100 / network.size()) {
+                Driver driver = new Driver();
+                driver.setId(UUID.randomUUID().toString());
+                driver.setAttributeList(new ArrayList<>());
+                driver.setCar(buildCar(network));
+                Point originPoint1 = road.getCoordinates().get(0);
+                Point destPoint1 = road.getCoordinates().get(1);
+                driver.setOriginCoordinates(originPoint1);
+                driver.setCurrentCoordinates(originPoint1);
+                driver.setDestinationCoordinates(destPoint1);
+                newDrivers.add(driver);
+            }
+        });
+        return newDrivers;
     }
 
     private Car buildCar(List<RoadLane> network) {
