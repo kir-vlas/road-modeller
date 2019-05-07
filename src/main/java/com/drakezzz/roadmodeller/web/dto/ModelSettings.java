@@ -24,4 +24,6 @@ public class ModelSettings {
 
     private Boolean isNotInitialized;
 
+    private int trafficGeneratorFactor;
+
 }

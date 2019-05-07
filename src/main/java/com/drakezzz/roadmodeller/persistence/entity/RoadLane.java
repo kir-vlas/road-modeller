@@ -10,6 +10,8 @@ public class RoadLane {
 
     private double length;
 
+    private boolean isHorizontal;
+
     private List<Point> coordinates;
 
     private RoadLane taper;

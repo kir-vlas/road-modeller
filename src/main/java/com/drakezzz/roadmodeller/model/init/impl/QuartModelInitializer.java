@@ -5,6 +5,7 @@ import com.drakezzz.roadmodeller.model.init.ModelInitializer;
 import com.drakezzz.roadmodeller.persistence.entity.ModelState;
 import com.drakezzz.roadmodeller.persistence.entity.RoadLane;
 import com.drakezzz.roadmodeller.web.dto.ModelSettings;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
@@ -13,24 +14,25 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+
 /**
- * Simple model builder with one road and one driver which moves directly to destination point
+ * Model initializer for quart road model for traffic lights optimization task
  */
 @Service
-@Deprecated
-public class SimpleModelInitializer implements ModelInitializer {
+@Primary
+public class QuartModelInitializer implements ModelInitializer {
+
     private final TrafficGenerator trafficGenerator;
 
-    public SimpleModelInitializer(TrafficGenerator trafficGenerator) {
+    public QuartModelInitializer(TrafficGenerator trafficGenerator) {
         this.trafficGenerator = trafficGenerator;
     }
 
     @Override
     public ModelState initializeModel(ModelSettings settings) {
         ModelState modelState = new ModelState();
-        List<RoadLane> network = buildNetwork();
-        modelState.setNetwork(network);
-        modelState.setMaxDuration(BigDecimal.valueOf(5000));
+        modelState.setNetwork(buildNetwork());
+        modelState.setMaxDuration(BigDecimal.valueOf(10000));
         modelState.setTimeDelta(BigDecimal.valueOf(1));
         modelState.setDrivers(new HashSet<>());
         modelState = trafficGenerator.generateTraffic(modelState);
@@ -39,10 +41,15 @@ public class SimpleModelInitializer implements ModelInitializer {
 
     private List<RoadLane> buildNetwork() {
         List<RoadLane> network = new LinkedList<>();
-        network.add(buildRoad(new Point(5,500), new Point(905, 500)));
-        network.add(buildRoad(new Point(5,512), new Point(905, 512)));
+        network.add(buildRoad(new Point(200,760), new Point(200, 50)));
+        network.add(buildRoad(new Point(210, 50), new Point(210,760)));
+        network.add(buildRoad(new Point(50,200), new Point(760, 200)));
+        network.add(buildRoad(new Point(760, 210), new Point(50,210)));
+        network.add(buildRoad(new Point(600,760), new Point(600, 50)));
+        network.add(buildRoad(new Point(610, 50), new Point(610,760)));
+        network.add(buildRoad(new Point(50,600), new Point(760, 600)));
+        network.add(buildRoad(new Point(760, 610), new Point(50,610)));
         return network;
     }
 
 }
-

@@ -3,6 +3,8 @@ package com.drakezzz.roadmodeller.model.random.impl;
 import com.drakezzz.roadmodeller.model.random.RandomProvider;
 import org.springframework.stereotype.Service;
 
+import static com.drakezzz.roadmodeller.utils.VectorUtils.sqr;
+
 @Service
 public class LogNormalRandomProvider implements RandomProvider {
 
@@ -14,7 +16,5 @@ public class LogNormalRandomProvider implements RandomProvider {
         return Math.exp(mu + RANDOM.nextDouble() * sigma);
     }
 
-    private double sqr(double digit) {
-        return Math.pow(digit, 2);
-    }
+
 }
