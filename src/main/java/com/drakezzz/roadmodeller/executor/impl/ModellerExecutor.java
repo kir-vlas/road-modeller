@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Primary
@@ -55,7 +56,7 @@ public class ModellerExecutor implements ContiniusActionExecutor {
         ModelState modelState = modelRepositoryProvider.getModelState(actionId);
         if (modelState.getTime().compareTo(modelState.getMaxDuration()) < 0) {
             modelState.incrementStep();
-            if (RandomUtils.nextInt(0,100) < 2) {
+            if (RandomUtils.nextInt(1,100) < 5) {
                 modelState = trafficGenerator.generateTraffic(modelState);
             }
             Set<Driver> drivers = modelState.getDrivers();
@@ -70,8 +71,11 @@ public class ModellerExecutor implements ContiniusActionExecutor {
                     driver.setFinished(true);
                 }
             });
-            checkCollissions(drivers);
-            drivers.removeIf(Driver::isFinished);
+            checkCollisions(drivers);
+            modelState.setDrivers(drivers.stream()
+                    .filter(driver ->
+                            !driver.isFinished())
+                    .collect(Collectors.toSet()));
         } else {
             modelState.setIsCompleted(true);
         }
@@ -79,11 +83,12 @@ public class ModellerExecutor implements ContiniusActionExecutor {
         return modelState;
     }
 
-    private void checkCollissions(Set<Driver> drivers) {
+    private void checkCollisions(Set<Driver> drivers) {
         for (Driver driver : drivers) {
             drivers.forEach(driver1 -> {
-                double dist = driver.getCurrentCoordinates().getX() - driver1.getCurrentCoordinates().getX();
-                if (!driver.equals(driver1) && (dist < 50 && dist > -50)) {
+                double dist = Math.abs(driver.getCurrentCoordinates().getX() - driver1.getCurrentCoordinates().getX());
+                boolean isSameLime  = driver.getCurrentCoordinates().getY() == driver1.getCurrentCoordinates().getY();
+                if (!driver.equals(driver1) && dist < 20 && isSameLime) {
                     driver.setFinished(true);
                 }
             });

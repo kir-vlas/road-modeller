@@ -75,6 +75,7 @@
                     return;
                 }
                 this.active = !this.active;
+                this.stats = "";
                 if (!this.active) {
                     clearInterval(this.num);
                 } else {
@@ -102,8 +103,14 @@
                 this.provider.context.fillRect(0, 0, 950, 1000);
                 modelState.network.forEach((roadLane) => {
                     const coords = roadLane.coordinates;
+                    this.provider.context.beginPath();
+                    this.provider.context.moveTo(coords[0].x, coords[0].y);
+                    this.provider.context.lineTo(coords[1].x, coords[0].y);
+                    this.provider.context.lineTo(coords[1].x, coords[1].y);
+                    this.provider.context.lineTo(coords[0].x, coords[1].y);
                     this.provider.context.fillStyle = "#c6c1bf";
-                    this.provider.context.fillRect(coords[0].x, coords[0].y, coords[1].x, 10)
+                    this.provider.context.stroke();
+                    this.provider.context.closePath();
                 });
                 if (modelState.drivers) {
                     this.cars = modelState.drivers.length;
