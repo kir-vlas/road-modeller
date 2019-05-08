@@ -6,6 +6,9 @@ import org.springframework.data.geo.Point;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Set;
+
+import static com.drakezzz.roadmodeller.utils.VectorUtils.*;
 
 @Data
 public class Driver {
@@ -23,6 +26,8 @@ public class Driver {
     private List<Attribute> attributeList;
 
     private boolean isFinished;
+
+    private boolean isWaitingGreenLight;
 
     @SuppressWarnings("unchecked")
     public <T> T getAttributeValue(Attribute attribute) {
@@ -49,6 +54,46 @@ public class Driver {
     public double getSafeSpeed(double distance, double safeTimeHeadway) {
         double maxDeceleration = getCar().getDeceleration();
         return (distance - 0.5 * maxDeceleration * Math.pow(safeTimeHeadway,2))/safeTimeHeadway;
+    }
+
+    public static void checkCollisions(Set<Driver> drivers) {
+        for (Driver driver1 : drivers) {
+            drivers.forEach(driver2 -> {
+                if (driver1.equals(driver2)) {
+                    return;
+                }
+                Point speedVector1 = calculateSpeed(driver1);
+                Point speedVector2 = calculateSpeed(driver2);
+                if (speedVector1.equals(speedVector2) && distance(driver1.getCurrentCoordinates(), driver2.getCurrentCoordinates()) < 10) {
+                    driver1.setFinished(true);
+                }
+            });
+        }
+    }
+
+    public static boolean isFinished(Driver driver) {
+        Point currentCoordinates = driver.getCurrentCoordinates();
+        Point destCoordinates = driver.getDestinationCoordinates();
+        return currentCoordinates.equals(destCoordinates);
+    }
+
+    public static Point calculateSpeed(Driver driver) {
+        Point currentCoordinates = driver.getCurrentCoordinates();
+        Point destCoordinates = driver.getDestinationCoordinates();
+        if (currentCoordinates.getX() != destCoordinates.getX()) {
+            if (isXLower(currentCoordinates, destCoordinates)) {
+                return new Point(driver.getCar().getSpeed(), 0);
+            } else {
+                return new Point(-driver.getCar().getSpeed(), 0);
+            }
+        }
+        else {
+            if (isYLower(currentCoordinates, destCoordinates)) {
+                return new Point(0, driver.getCar().getSpeed());
+            } else {
+                return new Point(0, -driver.getCar().getSpeed());
+            }
+        }
     }
 
 }

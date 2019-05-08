@@ -103,28 +103,32 @@
                 this.provider.context.fillRect(0, 0, 950, 1000);
                 modelState.network.forEach((roadLane) => {
                     const coords = roadLane.coordinates;
+                    this.provider.context.strokeStyle = "white";
                     if (roadLane.horizontal) {
-                        console.log(roadLane);
                         this.provider.context.beginPath();
                         this.provider.context.moveTo(coords[0].x, coords[0].y);
                         this.provider.context.lineTo(coords[0].x, coords[0].y + 10);
                         this.provider.context.lineTo(coords[1].x, coords[1].y + 10);
-                        this.provider.context.lineTo(coords[1].x, coords[1].y);
-                        this.provider.context.closePath();
-                        this.provider.context.fillStyle = "#c6c1bf";
-                        this.provider.context.stroke();
                     } else {
                         this.provider.context.beginPath();
                         this.provider.context.moveTo(coords[0].x, coords[0].y);
                         this.provider.context.lineTo(coords[0].x + 10, coords[0].y);
                         this.provider.context.lineTo(coords[1].x + 10, coords[1].y);
-                        this.provider.context.lineTo(coords[1].x, coords[1].y);
-                        this.provider.context.closePath();
-                        this.provider.context.fillStyle = "#c6c1bf";
-                        this.provider.context.stroke();
                     }
+                    this.provider.context.lineTo(coords[1].x, coords[1].y);
+                    this.provider.context.closePath();
+                    this.provider.context.stroke();
+                    this.provider.context.fillStyle = "#c6c1bf";
+                    this.provider.context.fill();
                     this.provider.context.closePath();
                 });
+                if (modelState.trafficLights) {
+                    modelState.trafficLights.forEach((light) => {
+                        this.provider.context.strokeStyle = 'blue';
+                        this.provider.context.fillStyle = light.status.toLowerCase();
+                        this.provider.context.fillRect(light.coordinates.x, light.coordinates.y, 5, 5);
+                    });
+                }
                 if (modelState.drivers) {
                     this.cars = modelState.drivers.length;
                     modelState.drivers.forEach((driver) => {
