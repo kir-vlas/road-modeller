@@ -74,7 +74,7 @@ public class Driver {
     public static boolean isFinished(Driver driver) {
         Point currentCoordinates = driver.getCurrentCoordinates();
         Point destCoordinates = driver.getDestinationCoordinates();
-        return currentCoordinates.equals(destCoordinates);
+        return distance(currentCoordinates, destCoordinates) < 5;
     }
 
     public static Point calculateSpeed(Driver driver) {
@@ -82,18 +82,22 @@ public class Driver {
         Point destCoordinates = driver.getDestinationCoordinates();
         if (currentCoordinates.getX() != destCoordinates.getX()) {
             if (isXLower(currentCoordinates, destCoordinates)) {
-                return new Point(driver.getCar().getSpeed(), 0);
+                return new Point(scaleSpeed(driver), 0);
             } else {
-                return new Point(-driver.getCar().getSpeed(), 0);
+                return new Point(-scaleSpeed(driver), 0);
             }
         }
         else {
             if (isYLower(currentCoordinates, destCoordinates)) {
-                return new Point(0, driver.getCar().getSpeed());
+                return new Point(0, scaleSpeed(driver));
             } else {
-                return new Point(0, -driver.getCar().getSpeed());
+                return new Point(0, -scaleSpeed(driver));
             }
         }
+    }
+
+    public static double scaleSpeed(Driver driver) {
+        return driver.getCar().getSpeed() / driver.getCar().getSpeedScale();
     }
 
 }

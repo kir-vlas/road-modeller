@@ -34,6 +34,8 @@ public class RoadLane {
 
     private double maxSpeedLimit;
 
+    private int trafficGeneratorFactor;
+
     public double getLegalMaxSpeedInMetersPerSec() {
         return maxSpeedLimit/3.6;
     }
