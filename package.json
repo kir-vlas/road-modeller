@@ -18,7 +18,7 @@
     "element-ui": "^2.3.3",
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "^0.9.0",
-    "lodash": "4.17.4",
+    "lodash": "^4.17.11",
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^1.0.0-beta.2",
     "vee-validate": "^2.1.4",
