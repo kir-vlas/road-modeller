@@ -124,9 +124,9 @@ public class ModellerExecutor implements ContiniusActionExecutor {
         }
         driversInSameRoad.sort((driver1, driver2) ->
                 compareCoordinates(driver1.getCurrentCoordinates(), driver2.getCurrentCoordinates()));
-        if (!trafficLightStop(currentDriver, speedVector2, trafficLights).equals(ZERO) && currentDriver.isWaitingGreenLight()) {
+        if (!trafficLightStop(currentDriver, speedVector2, trafficLights).equals(ZERO)) {
             for (Driver driver : driversInSameRoad) {
-                if (!currentDriver.equals(driver) && distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 35 && isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector2) && driver.isWaitingGreenLight()) {
+                if (!currentDriver.equals(driver) && distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 25 && isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector2)) {
                     currentDriver.setWaitingGreenLight(true);
                     return true;
                 }
