@@ -83,6 +83,14 @@ public class VectorUtils {
         return Optional.of(point);
     }
 
+    public static boolean isBehind(Point point1, Point point2, Point speedVector) {
+        if (compareCoordinates(speedVector, ZERO) > 0) {
+            return compareCoordinates(point1, point2) < 0;
+        } else {
+            return compareCoordinates(point1, point2) > 0;
+        }
+    }
+
     public double[] calculateLinearCoords(Point point1, Point point2) {
         double xCoeff = (point2.getY() - point1.getY())/(point2.getX() - point1.getX());
         double bCoeff = (point2.getX()*point1.getY() - point1.getX()*point2.getY())/(point2.getX() - point1.getX());

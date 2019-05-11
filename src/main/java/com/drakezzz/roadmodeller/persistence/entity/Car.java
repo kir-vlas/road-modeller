@@ -1,5 +1,6 @@
 package com.drakezzz.roadmodeller.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.Duration;
@@ -9,6 +10,9 @@ import java.time.LocalTime;
 public class Car {
 
     private double speed;
+
+    @JsonIgnore
+    private double speedScale;
 
     private double acceleration;
 

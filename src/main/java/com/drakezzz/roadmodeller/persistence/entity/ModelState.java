@@ -42,8 +42,6 @@ public class ModelState {
 
     private Boolean isCompleted;
 
-    private int trafficGeneratorFactor;
-
     public static ModelState of(ModelSettings settings) {
         ModelState modelState = new ModelState();
         modelState.setDrivers(settings.getDrivers());
@@ -51,8 +49,6 @@ public class ModelState {
         modelState.setMaxDuration(settings.getMaxDuration());
         modelState.setTimeDelta(settings.getTimeDelta());
         modelState.setAttributes(settings.getAttributes());
-        modelState.setTrafficGeneratorFactor(settings.getTrafficGeneratorFactor());
-
         return modelState;
     }
 

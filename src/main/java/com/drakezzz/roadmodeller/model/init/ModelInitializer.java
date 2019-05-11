@@ -13,7 +13,7 @@ public interface ModelInitializer {
 
     ModelState initializeModel(ModelSettings settings);
 
-    default RoadLane buildRoad(Point origin, Point dest) {
+    default RoadLane buildRoad(Point origin, Point dest, int trafficFactor) {
         RoadLane roadLane = new RoadLane();
         roadLane.setMaxSpeedLimit(60);
         List<Point> coordinates = new ArrayList<>();
@@ -26,6 +26,7 @@ public interface ModelInitializer {
         coordinates.add(dest);
         roadLane.setCoordinates(coordinates);
         roadLane.setLength(VectorUtils.distance(origin, dest));
+        roadLane.setTrafficGeneratorFactor(trafficFactor);
         roadLane.setCanTurnLeft(false);
         roadLane.setCanTurnRight(false);
         return roadLane;

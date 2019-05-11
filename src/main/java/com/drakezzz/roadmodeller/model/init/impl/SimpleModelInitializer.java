@@ -39,8 +39,8 @@ public class SimpleModelInitializer implements ModelInitializer {
 
     private List<RoadLane> buildNetwork() {
         List<RoadLane> network = new LinkedList<>();
-        network.add(buildRoad(new Point(5,500), new Point(905, 500)));
-        network.add(buildRoad(new Point(5,512), new Point(905, 512)));
+        network.add(buildRoad(new Point(5,500), new Point(905, 500), 2));
+        network.add(buildRoad(new Point(5,512), new Point(905, 512), 2));
         return network;
     }
 
