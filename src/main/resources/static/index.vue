@@ -29,33 +29,38 @@
             </label>
             <div v-show="!modelSettings.isNotInitialized">
                 <h4>Дороги</h4>
-                <div class="road-lane-panel" v-for="roadLane of modelSettings.network">
-                    <input type="text" placeholder="Длина" v-model="roadLane.length"/>
-                    <label>
-                        Горизонтальная
-                        <input type="checkbox" v-model="roadLane.isHorizontal"/>
-                    </label>
-                    <input type="text" placeholder="Скоростной лимит" v-model="roadLane.maxSpeedLimit"/>
-                    <input type="text" placeholder="Частота движения" v-model="roadLane.trafficGeneratorFactor"/>
-                    <div v-for="coord of roadLane.coordinates">
+                <div class="roads-list">
+                    <div class="road-lane-panel" v-for="roadLane of modelSettings.network">
+                        <input type="text" placeholder="Длина" v-model="roadLane.length"/>
                         <label>
-                            Координата X
-                            <input placeholder="Координата X" v-model="coord.x"/>
+                            Горизонтальная
+                            <input type="checkbox" v-model="roadLane.horizontal"/>
                         </label>
-                        <label>
-                            Координата Y
-                            <input placeholder="Координата Y" v-model="coord.y"/>
-                        </label>
+                        <input type="text" placeholder="Скоростной лимит" v-model="roadLane.maxSpeedLimit"/>
+                        <input type="text" placeholder="Частота движения" v-model="roadLane.trafficGeneratorFactor"/>
+                        <div v-for="coord of roadLane.coordinates">
+                            <label>
+                                Координата X
+                                <input placeholder="Координата X" v-model="coord.x"/>
+                            </label>
+                            <label>
+                                Координата Y
+                                <input placeholder="Координата Y" v-model="coord.y"/>
+                            </label>
+                        </div>
                     </div>
                 </div>
+
                 <button class="btn" v-on:click="addRoad">Добавить дорогу</button>
                 <h4>Светофоры</h4>
-                <div v-for="trafficLight of modelSettings.trafficLights">
-                    <input placeholder="Начальный статус" v-model="trafficLight.status"/>
-                    <input placeholder="Длительность красного сигнала" v-model="trafficLight.redDelay"/>
-                    <input placeholder="Длительность зеленого сигнала" v-model="trafficLight.greenDelay"/>
-                    <input placeholder="Координата X" v-model="trafficLight.coordinates.x"/>
-                    <input placeholder="Координата Y" v-model="trafficLight.coordinates.y"/>
+                <div class="roads-list">
+                    <div class="road-lane-panel" v-for="trafficLight of modelSettings.trafficLights">
+                        <input placeholder="Начальный статус" v-model="trafficLight.status"/>
+                        <input placeholder="Длительность красного сигнала" v-model="trafficLight.redDelay"/>
+                        <input placeholder="Длительность зеленого сигнала" v-model="trafficLight.greenDelay"/>
+                        <input placeholder="Координата X" v-model="trafficLight.coordinates.x"/>
+                        <input placeholder="Координата Y" v-model="trafficLight.coordinates.y"/>
+                    </div>
                 </div>
                 <button class="btn" v-on:click="addLight">Добавить светофор</button>
                 <h4>Длительность моделирования</h4>
@@ -91,7 +96,7 @@
                 modelSettings: {
                     drivers: [],
                     network: [{coordinates: [{}, {}]}],
-                    trafficLights: [{coordinates: {}}],
+                    trafficLights: [],
                     attributes: [],
                     maxDuration: 0,
                     timeDelta: 0,
@@ -315,5 +320,10 @@
 
     .btn {
         width: 200px;
+    }
+
+    .roads-list{
+        display: flex;
+        flex-wrap: wrap;
     }
 </style>
