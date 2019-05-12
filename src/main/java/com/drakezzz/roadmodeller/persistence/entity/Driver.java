@@ -25,6 +25,8 @@ public class Driver {
 
     private List<Attribute> attributeList;
 
+    private RoadLane currentRoad;
+
     private boolean isFinished;
 
     private boolean isWaitingGreenLight;
