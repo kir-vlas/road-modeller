@@ -18,11 +18,9 @@ public class TrafficLight {
 
     private double currentDuration;
 
-    private RoadLane roadLane;
-
     private Point coordinates;
 
-    public void incrementCurrentDuration() {
+    private void incrementCurrentDuration() {
         currentDuration++;
     }
 

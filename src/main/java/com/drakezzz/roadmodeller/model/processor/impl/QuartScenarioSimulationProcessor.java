@@ -101,8 +101,20 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
     }
 
     private Point trafficLightStop(Driver driver, Point speedVector, List<TrafficLight> trafficLightList) {
+
+        long nearTrafficLightsCount = trafficLightList.stream()
+                .filter(trafficLight ->
+                        (trafficLight.getCoordinates().getX() == driver.getCurrentCoordinates().getX() ||
+                                trafficLight.getCoordinates().getY() == driver.getCurrentCoordinates().getY()) &&
+                                distance(trafficLight.getCoordinates(), driver.getCurrentCoordinates()) < 20)
+                .count();
+        if (nearTrafficLightsCount < 2) {
+            return new Point(speedVector);
+        }
+
         for (TrafficLight trafficLight : trafficLightList) {
-            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 9) {
+            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 9 ||
+                    !isBehind(driver.getCurrentCoordinates(), trafficLight.getCoordinates(), speedVector)) {
                 continue;
             }
             if (LightStatus.RED.equals(trafficLight.getStatus())) {
