@@ -2,10 +2,7 @@ package com.drakezzz.roadmodeller.model.processor.impl;
 
 import com.drakezzz.roadmodeller.model.generator.TrafficGenerator;
 import com.drakezzz.roadmodeller.model.processor.SimulationProcessor;
-import com.drakezzz.roadmodeller.persistence.entity.Driver;
-import com.drakezzz.roadmodeller.persistence.entity.LightStatus;
-import com.drakezzz.roadmodeller.persistence.entity.ModelState;
-import com.drakezzz.roadmodeller.persistence.entity.TrafficLight;
+import com.drakezzz.roadmodeller.persistence.entity.*;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.drakezzz.roadmodeller.persistence.entity.Driver.calculateSpeed;
-import static com.drakezzz.roadmodeller.persistence.entity.Driver.checkCollisions;
+import static com.drakezzz.roadmodeller.persistence.entity.Driver.*;
 import static com.drakezzz.roadmodeller.utils.VectorUtils.*;
 
 @Service
@@ -37,15 +33,18 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
             Set<Driver> drivers = modelState.getDrivers();
             List<TrafficLight> trafficLights = modelState.getTrafficLights();
             drivers.forEach(driver -> {
-                Point speedVector = calculateSpeed(driver);
+
+                Point speedVector = getDestinationVector(driver);
                 speedVector = trafficLightStop(driver, speedVector, trafficLights);
-                if (nearCars(drivers, driver, speedVector)) {
-                    speedVector = ZERO;
+
+                if (isDriverBrakes(drivers, driver, speedVector)) {
+                    speedVector = calculateSpeed(driver, Car.getCurrentSpeed(driver.getCar(), false));
+                } else {
+                    speedVector = calculateSpeed(driver, Car.getCurrentSpeed(driver.getCar(), true));
                 }
-                if (!speedVector.equals(ZERO)) {
-                    Point currentCoord = driver.getCurrentCoordinates();
-                    driver.setCurrentCoordinates(add(currentCoord, speedVector));
-                }
+                Point currentCoord = driver.getCurrentCoordinates();
+                driver.setCurrentCoordinates(add(currentCoord, speedVector));
+
                 if (Driver.isFinished(driver)) {
                     driver.setFinished(true);
                 }
@@ -72,7 +71,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 .collect(Collectors.toSet()));
     }
 
-    private boolean nearCars(Set<Driver> drivers, Driver currentDriver, Point speedVector) {
+    private boolean isDriverBrakes(Set<Driver> drivers, Driver currentDriver, Point speedVector) {
         List<Driver> driversInSameRoad;
         if (speedVector.equals(ZERO)) {
             currentDriver.setWaitingGreenLight(true);
@@ -106,14 +105,14 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 .filter(trafficLight ->
                         (trafficLight.getCoordinates().getX() == driver.getCurrentCoordinates().getX() ||
                                 trafficLight.getCoordinates().getY() == driver.getCurrentCoordinates().getY()) &&
-                                distance(trafficLight.getCoordinates(), driver.getCurrentCoordinates()) < 20)
+                                distance(trafficLight.getCoordinates(), driver.getCurrentCoordinates()) < 40)
                 .count();
         if (nearTrafficLightsCount < 2) {
             return new Point(speedVector);
         }
 
         for (TrafficLight trafficLight : trafficLightList) {
-            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 9 ||
+            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 20 ||
                     !isBehind(driver.getCurrentCoordinates(), trafficLight.getCoordinates(), speedVector)) {
                 continue;
             }

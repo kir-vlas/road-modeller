@@ -56,7 +56,10 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
 
     private Car buildCar(List<RoadLane> network) {
         Car car = new Car();
-        car.setSpeed(60);
+        car.setSpeed(0);
+        car.setMaxSpeed(60);
+        car.setAcceleration(10);
+        car.setDeceleration(10);
         car.setSpeedScale(30);
         car.setCurrentLane(network.get(0));
         car.setDirection(Direction.DIRECT);

@@ -64,8 +64,8 @@ public class Driver {
                 if (driver1.equals(driver2)) {
                     return;
                 }
-                Point speedVector1 = calculateSpeed(driver1);
-                Point speedVector2 = calculateSpeed(driver2);
+                Point speedVector1 = getDestinationVector(driver1);
+                Point speedVector2 = getDestinationVector(driver2);
                 if (speedVector1.equals(speedVector2) && distance(driver1.getCurrentCoordinates(), driver2.getCurrentCoordinates()) < 10) {
                     driver1.setFinished(true);
                 }
@@ -79,27 +79,27 @@ public class Driver {
         return distance(currentCoordinates, destCoordinates) < 5;
     }
 
-    public static Point calculateSpeed(Driver driver) {
+    public static Point getDestinationVector(Driver driver) {
+        return calculateSpeed(driver, 1);
+    }
+
+    public static Point calculateSpeed(Driver driver, double carSpeed) {
         Point currentCoordinates = driver.getCurrentCoordinates();
         Point destCoordinates = driver.getDestinationCoordinates();
         if (currentCoordinates.getX() != destCoordinates.getX()) {
             if (isXLower(currentCoordinates, destCoordinates)) {
-                return new Point(scaleSpeed(driver), 0);
+                return new Point(carSpeed, 0);
             } else {
-                return new Point(-scaleSpeed(driver), 0);
+                return new Point(-carSpeed, 0);
             }
         }
         else {
             if (isYLower(currentCoordinates, destCoordinates)) {
-                return new Point(0, scaleSpeed(driver));
+                return new Point(0, carSpeed);
             } else {
-                return new Point(0, -scaleSpeed(driver));
+                return new Point(0, -carSpeed);
             }
         }
-    }
-
-    public static double scaleSpeed(Driver driver) {
-        return driver.getCar().getSpeed() / driver.getCar().getSpeedScale();
     }
 
 }
