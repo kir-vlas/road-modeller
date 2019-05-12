@@ -38,4 +38,17 @@ public class Car {
 
     private RoadLane currentLane;
 
+    public static double getCurrentSpeed(Car car, boolean isAccelerate) {
+        if (isAccelerate) {
+            if (car.getSpeed() < car.getMaxSpeed()) {
+                car.setSpeed(car.getSpeed() + car.getAcceleration());
+            }
+        } else {
+            if (car.getSpeed() > 0) {
+                car.setSpeed(car.getSpeed() - car.getDeceleration());
+            }
+        }
+        return car.getSpeed() / car.getSpeedScale();
+    }
+
 }
