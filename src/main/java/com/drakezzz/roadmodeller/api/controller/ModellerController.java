@@ -5,10 +5,7 @@ import com.drakezzz.roadmodeller.service.StatisticService;
 import com.drakezzz.roadmodeller.web.dto.ModelId;
 import com.drakezzz.roadmodeller.web.dto.ModelSettings;
 import com.drakezzz.roadmodeller.web.dto.StatisticEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
@@ -22,10 +19,8 @@ public class ModellerController {
         this.statisticService = statisticService;
     }
 
-    @GetMapping("/init")
-    public ModelId initModel() {
-        ModelSettings modelSettings = new ModelSettings();
-        modelSettings.setIsNotInitialized(true);
+    @PostMapping("/init")
+    public ModelId initModel(@RequestBody ModelSettings modelSettings) {
         String id = executor.initAction(modelSettings);
         return new ModelId(id);
     }

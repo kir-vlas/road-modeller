@@ -3,7 +3,8 @@
         <h2>Моделирование движения транспорта</h2>
         <div class="manipulation">
             <button class="init-button" @click="init">Создать модель</button>
-            <button class="model-button" @click="model">{{!this.active ? "Запустить моделирование": "Остановить моделирование"}}</button>
+            <button class="model-button" @click="model">{{!this.active ? "Запустить моделирование": "Остановить моделирование"}}
+            </button>
             <div class="inputs">
                 <label>
                     Идентификатор модели
@@ -19,6 +20,54 @@
                 </label>
             </div>
             <span v-if="cars">Количество машин на дороге: {{this.cars}}</span>
+        </div>
+        <hr>
+        <div class="model-settings">
+            <label>
+                Стандартный сценарий
+                <input type="checkbox" v-model="modelSettings.isNotInitialized"/>
+            </label>
+            <div v-show="!modelSettings.isNotInitialized">
+                <h4>Дороги</h4>
+                <div class="roads-list">
+                    <div class="road-lane-panel" v-for="roadLane of modelSettings.network">
+                        <input type="text" placeholder="Длина" v-model="roadLane.length"/>
+                        <label>
+                            Горизонтальная
+                            <input type="checkbox" v-model="roadLane.horizontal"/>
+                        </label>
+                        <input type="text" placeholder="Скоростной лимит" v-model="roadLane.maxSpeedLimit"/>
+                        <input type="text" placeholder="Частота движения" v-model="roadLane.trafficGeneratorFactor"/>
+                        <div v-for="coord of roadLane.coordinates">
+                            <label>
+                                Координата X
+                                <input placeholder="Координата X" v-model="coord.x"/>
+                            </label>
+                            <label>
+                                Координата Y
+                                <input placeholder="Координата Y" v-model="coord.y"/>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" v-on:click="addRoad">Добавить дорогу</button>
+                <h4>Светофоры</h4>
+                <div class="roads-list">
+                    <div class="road-lane-panel" v-for="trafficLight of modelSettings.trafficLights">
+                        <input placeholder="Начальный статус" v-model="trafficLight.status"/>
+                        <input placeholder="Длительность красного сигнала" v-model="trafficLight.redDelay"/>
+                        <input placeholder="Длительность зеленого сигнала" v-model="trafficLight.greenDelay"/>
+                        <input placeholder="Координата X" v-model="trafficLight.coordinates.x"/>
+                        <input placeholder="Координата Y" v-model="trafficLight.coordinates.y"/>
+                    </div>
+                </div>
+                <button class="btn" v-on:click="addLight">Добавить светофор</button>
+                <h4>Длительность моделирования</h4>
+                <input class="settings-input" placeholder="Максимальная продолжительность"
+                       v-model="modelSettings.maxDuration"/>
+                <input class="settings-input" placeholder="Изменение времени" v-model="modelSettings.timeDelta"/>
+            </div>
         </div>
         <div class="main-model">
             <div class="render">
@@ -44,6 +93,15 @@
                 },
                 id: "",
                 stats: "",
+                modelSettings: {
+                    drivers: [],
+                    network: [{coordinates: [{}, {}]}],
+                    trafficLights: [],
+                    attributes: [],
+                    maxDuration: 0,
+                    timeDelta: 0,
+                    isNotInitialized: false
+                },
                 cars: 0
             }
         },
@@ -82,7 +140,7 @@
                     this.num = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
                 }
             },
-            getStats :function () {
+            getStats: function () {
                 this.$http.get(`/model/${this.id}`)
                     .then(res => {
                         this.stats = res.body;
@@ -93,10 +151,16 @@
                     clearInterval(this.num);
                     this.active = false;
                 }
-                this.$http.get("/init")
+                this.$http.post("/init", this.modelSettings)
                     .then(res => {
                         this.id = res.body.id
                     });
+            },
+            addRoad: function () {
+                this.modelSettings.network.push({coordinates: [{}, {}]});
+            },
+            addLight: function () {
+                this.modelSettings.trafficLights.push({coordinates: {}});
             },
             render: function (modelState) {
                 this.provider.context.fillStyle = "#dbebb9";
@@ -172,8 +236,8 @@
     .render {
         display: flex;
         overflow: scroll;
-        width: 1000px;
-        height: 1000px;
+        min-width: 1000px;
+        min-height: 1000px;
         max-width: 1500px;
         max-height: 2000px;
     }
@@ -237,5 +301,29 @@
         border-radius: 50%;
         background: #4CAF50;
         cursor: pointer;
+    }
+
+    .model-settings {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .settings-input {
+        width: 200px;
+    }
+
+    .road-lane-panel {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+    }
+
+    .btn {
+        width: 200px;
+    }
+
+    .roads-list{
+        display: flex;
+        flex-wrap: wrap;
     }
 </style>

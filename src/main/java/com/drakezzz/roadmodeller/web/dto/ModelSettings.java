@@ -2,7 +2,6 @@ package com.drakezzz.roadmodeller.web.dto;
 
 import com.drakezzz.roadmodeller.model.entity.Attribute;
 import com.drakezzz.roadmodeller.persistence.entity.Driver;
-import com.drakezzz.roadmodeller.persistence.entity.RoadLane;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,7 +13,9 @@ public class ModelSettings {
 
     private Set<Driver> drivers;
 
-    private List<RoadLane> network;
+    private List<RoadDto> network;
+
+    private List<TrafficLightDto> trafficLights;
 
     private List<Attribute> attributes;
 
@@ -23,7 +24,5 @@ public class ModelSettings {
     private BigDecimal timeDelta;
 
     private Boolean isNotInitialized;
-
-    private int trafficGeneratorFactor;
 
 }

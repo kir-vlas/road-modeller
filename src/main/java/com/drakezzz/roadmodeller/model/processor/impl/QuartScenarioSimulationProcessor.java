@@ -30,7 +30,9 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
         if (modelState.getTime().compareTo(modelState.getMaxDuration()) < 0) {
             modelState.incrementStep();
             generateTraffic(modelState);
-            Set<Driver> drivers = modelState.getDrivers();
+        }
+        Set<Driver> drivers = modelState.getDrivers();
+        if (modelState.getTime().compareTo(modelState.getMaxDuration()) < 0 || !drivers.isEmpty()) {
             List<TrafficLight> trafficLights = modelState.getTrafficLights();
             drivers.forEach(driver -> {
 

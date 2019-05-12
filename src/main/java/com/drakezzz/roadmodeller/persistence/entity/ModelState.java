@@ -2,6 +2,8 @@ package com.drakezzz.roadmodeller.persistence.entity;
 
 import com.drakezzz.roadmodeller.model.entity.Attribute;
 import com.drakezzz.roadmodeller.web.dto.ModelSettings;
+import com.drakezzz.roadmodeller.web.dto.RoadDto;
+import com.drakezzz.roadmodeller.web.dto.TrafficLightDto;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
@@ -9,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class ModelState {
@@ -44,8 +47,9 @@ public class ModelState {
 
     public static ModelState of(ModelSettings settings) {
         ModelState modelState = new ModelState();
+        modelState.setNetwork(settings.getNetwork().stream().map(RoadDto::toRoadLane).collect(Collectors.toList()));
         modelState.setDrivers(settings.getDrivers());
-        modelState.setNetwork(settings.getNetwork());
+        modelState.setTrafficLights(settings.getTrafficLights().stream().map(TrafficLightDto::toTrafficLight).collect(Collectors.toList()));
         modelState.setMaxDuration(settings.getMaxDuration());
         modelState.setTimeDelta(settings.getTimeDelta());
         modelState.setAttributes(settings.getAttributes());
