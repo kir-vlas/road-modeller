@@ -37,8 +37,9 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
     private Set<Driver> createDrivers(List<RoadLane> network) {
        Set<Driver> newDrivers = new HashSet<>();
         network.forEach(road -> {
-            if (RandomUtils.nextInt(1,100) < road.getTrafficGeneratorFactor()) {
+            if (RandomUtils.nextInt(1,1000) < road.getTrafficGeneratorFactor()) {
                 Driver driver = new Driver();
+                driver.setCurrentRoad(road);
                 driver.setId(UUID.randomUUID().toString());
                 driver.setAttributeList(new ArrayList<>());
                 driver.setCar(buildCar(network));

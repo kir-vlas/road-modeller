@@ -6,7 +6,11 @@ import org.springframework.data.geo.Point;
 @Data
 public class TrafficLight {
 
+    private static final double YELLOW_DELAY = 60;
+
     private LightStatus status;
+
+    private LightStatus previousStatus;
 
     private double redDelay;
 
@@ -16,7 +20,7 @@ public class TrafficLight {
 
     private Point coordinates;
 
-    public void incrementCurrentDuration() {
+    private void incrementCurrentDuration() {
         currentDuration++;
     }
 
@@ -26,7 +30,20 @@ public class TrafficLight {
             if (currentDuration < greenDelay) {
                 return;
             }
-            status = LightStatus.RED;
+            previousStatus = LightStatus.GREEN;
+            status = LightStatus.YELLOW;
+            currentDuration = 0;
+            return;
+        }
+        if (status.equals(LightStatus.YELLOW)) {
+            if (currentDuration < YELLOW_DELAY) {
+                return;
+            }
+            if (previousStatus.equals(LightStatus.GREEN)) {
+                status = LightStatus.RED;
+            } else if (previousStatus.equals(LightStatus.RED)) {
+                status = LightStatus.GREEN;
+            }
             currentDuration = 0;
             return;
         }
@@ -34,7 +51,8 @@ public class TrafficLight {
             if (currentDuration < redDelay) {
                 return;
             }
-            status = LightStatus.GREEN;
+            previousStatus = LightStatus.RED;
+            status = LightStatus.YELLOW;
             currentDuration = 0;
         }
     }

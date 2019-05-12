@@ -39,7 +39,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
             drivers.forEach(driver -> {
                 Point speedVector = calculateSpeed(driver);
                 speedVector = trafficLightStop(driver, speedVector, trafficLights);
-                if (nearCars(drivers, driver, trafficLights)) {
+                if (nearCars(drivers, driver, speedVector)) {
                     speedVector = ZERO;
                 }
                 if (!speedVector.equals(ZERO)) {
@@ -72,10 +72,9 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 .collect(Collectors.toSet()));
     }
 
-    private boolean nearCars(Set<Driver> drivers, Driver currentDriver, List<TrafficLight> trafficLights) {
+    private boolean nearCars(Set<Driver> drivers, Driver currentDriver, Point speedVector) {
         List<Driver> driversInSameRoad;
-        Point speedVector2 = calculateSpeed(currentDriver);
-        if (trafficLightStop(currentDriver, speedVector2, trafficLights).equals(ZERO)) {
+        if (speedVector.equals(ZERO)) {
             currentDriver.setWaitingGreenLight(true);
             return true;
         }
@@ -88,30 +87,34 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
         }
         driversInSameRoad.sort((driver1, driver2) ->
                 compareCoordinates(driver1.getCurrentCoordinates(), driver2.getCurrentCoordinates()));
-        if (!trafficLightStop(currentDriver, speedVector2, trafficLights).equals(ZERO)) {
+        if (!speedVector.equals(ZERO)) {
             for (Driver driver : driversInSameRoad) {
-                if (!currentDriver.equals(driver) && distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 25 && isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector2)) {
+                if (!currentDriver.equals(driver) && distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 25 && isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector)) {
                     currentDriver.setWaitingGreenLight(true);
                     return true;
                 }
             }
         }
 
-
-//        for (Driver driver : driversInSameRoad) {
-//            if (!currentDriver.equals(driver) && distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 35 && driver.isWaitingGreenLight()) {
-//                currentDriver.setWaitingGreenLight(true);
-//                return true;
-//            }
-//        }
-
         currentDriver.setWaitingGreenLight(false);
         return false;
     }
 
     private Point trafficLightStop(Driver driver, Point speedVector, List<TrafficLight> trafficLightList) {
+
+        long nearTrafficLightsCount = trafficLightList.stream()
+                .filter(trafficLight ->
+                        (trafficLight.getCoordinates().getX() == driver.getCurrentCoordinates().getX() ||
+                                trafficLight.getCoordinates().getY() == driver.getCurrentCoordinates().getY()) &&
+                                distance(trafficLight.getCoordinates(), driver.getCurrentCoordinates()) < 20)
+                .count();
+        if (nearTrafficLightsCount < 2) {
+            return new Point(speedVector);
+        }
+
         for (TrafficLight trafficLight : trafficLightList) {
-            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 9) {
+            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 9 ||
+                    !isBehind(driver.getCurrentCoordinates(), trafficLight.getCoordinates(), speedVector)) {
                 continue;
             }
             if (LightStatus.RED.equals(trafficLight.getStatus())) {
