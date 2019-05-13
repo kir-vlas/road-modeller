@@ -1,5 +1,7 @@
 server:
   port: 8090
+logging:
+  config: config/logback.groovy
 spring:
   data:
     mongodb:
