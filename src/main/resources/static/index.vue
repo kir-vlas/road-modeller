@@ -2,8 +2,9 @@
     <div class="container">
         <h2>Моделирование движения транспорта</h2>
         <div class="manipulation">
-            <button class="init-button" @click="init">Создать модель</button>
-            <button class="model-button" @click="model">{{!this.active ? "Запустить моделирование": "Остановить моделирование"}}
+            <button class="init-button" @click="settingsPanel = !settingsPanel">Создать модель</button>
+            <button class="model-button" v-if="id" @click="model">
+                {{!this.active ? "Запустить моделирование": "Остановить моделирование"}}
             </button>
             <div class="inputs">
                 <label>
@@ -14,20 +15,41 @@
                     Частота:
                     {{freq}}
                     <div class="slider-container">
-                        <input type="range" class="slider" name="freq" min="1" max="144" v-on:click="changeSpeed"
+                        <input type="range"
+                               class="slider"
+                               name="freq"
+                               min="1"
+                               max="100"
+                               v-on:click="changeSpeed"
                                v-model="freq"/>
                     </div>
                 </label>
             </div>
             <span v-if="cars">Количество машин на дороге: {{this.cars}}</span>
+            <span v-if="time">Прогресс: {{this.time}} / {{this.maxDuration}}</span>
         </div>
         <hr>
-        <div class="model-settings">
+        <div v-if="!active" class="models-panel">
+            <button class="btn" @click="loadModels">Показать незавершенные</button>
+            <div v-if="modelList" class="models-list">
+                <div class="model-continue" v-for="modelId of unfinishedModels">
+                    Идентификатор модели: {{modelId.id}}}
+                    <div>
+                        <button @click="execute(modelId.id)">Продолжить</button>
+                        <button @click="deleteModel(modelId.id)">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="settingsPanel" class="model-settings">
             <label>
                 Стандартный сценарий
                 <input type="checkbox" v-model="modelSettings.isNotInitialized"/>
+                <button @click="init">Принять</button>
             </label>
             <div v-show="!modelSettings.isNotInitialized">
+                <button @click="showSettings">Экспорт настроек</button>
+                <textarea class="model-init-settings" v-if="settingsString" v-model="settingsString"></textarea>
                 <h4>Дороги</h4>
                 <div class="roads-list">
                     <div class="road-lane-panel" v-for="roadLane of modelSettings.network">
@@ -86,13 +108,17 @@
         data() {
             return {
                 active: false,
+                settingsPanel: false,
+                modelList: false,
+                unfinishedModels: [],
                 num: 0,
-                freq: 60,
+                freq: 30,
                 provider: {
                     context: null
                 },
                 id: "",
                 stats: "",
+                settingsString: '',
                 modelSettings: {
                     drivers: [],
                     network: [{coordinates: [{}, {}]}],
@@ -102,7 +128,9 @@
                     timeDelta: 0,
                     isNotInitialized: false
                 },
-                cars: 0
+                cars: 0,
+                maxDuration: 0,
+                time: 0
             }
         },
         created() {
@@ -110,6 +138,7 @@
                 const modelState = JSON.parse(data.data);
                 let isCompleted = modelState.isCompleted;
                 if (isCompleted) {
+                    this.cars = 0;
                     this.getStats();
                     this.active = false;
                     console.log("END");
@@ -140,17 +169,39 @@
                     this.num = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
                 }
             },
+            execute: function (modelId) {
+                this.id = modelId;
+                this.modelList = false;
+                this.model();
+            },
+            deleteModel: function (modelId) {
+                this.$http.delete(`/models/${modelId}`);
+                this.$http.get("/models")
+                    .then(res => {
+                        this.unfinishedModels = res.body;
+                    });
+            },
             getStats: function () {
                 this.$http.get(`/model/${this.id}`)
                     .then(res => {
                         this.stats = res.body;
                     });
             },
+            loadModels: function () {
+                this.modelList = !this.modelList;
+                if (this.modelList) {
+                    this.$http.get("/models")
+                        .then(res => {
+                            this.unfinishedModels = res.body;
+                        });
+                }
+            },
             init: function () {
                 if (this.active) {
                     clearInterval(this.num);
                     this.active = false;
                 }
+                this.settingsPanel = false;
                 this.$http.post("/init", this.modelSettings)
                     .then(res => {
                         this.id = res.body.id
@@ -161,6 +212,14 @@
             },
             addLight: function () {
                 this.modelSettings.trafficLights.push({coordinates: {}});
+            },
+            showSettings: function() {
+                if (this.settingsString) {
+                    this.modelSettings = JSON.parse(this.settingsString);
+                    this.settingsString = '';
+                } else {
+                    this.settingsString = JSON.stringify(this.modelSettings, null, 3);
+                }
             },
             render: function (modelState) {
                 this.provider.context.fillStyle = "#dbebb9";
@@ -200,6 +259,8 @@
                         this.provider.context.fillRect(driver.currentCoordinates.x, driver.currentCoordinates.y, 10, 10)
                     });
                 }
+                this.time = modelState.time;
+                this.maxDuration = modelState.maxDuration;
             },
             changeSpeed: function () {
                 if (!this.active) {
@@ -322,8 +383,30 @@
         width: 200px;
     }
 
-    .roads-list{
+    .roads-list {
         display: flex;
         flex-wrap: wrap;
+    }
+
+    .model-init-settings {
+        width: 800px;
+        height: 1000px;
+        overflow: scroll;
+    }
+
+    .models-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .model-continue {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .models-panel {
+        display: flex;
+        flex-direction: column;
+        width: 800px;
     }
 </style>
