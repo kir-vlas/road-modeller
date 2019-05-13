@@ -4,14 +4,14 @@ import com.drakezzz.roadmodeller.model.entity.Attribute;
 import com.drakezzz.roadmodeller.persistence.entity.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class ModelDto {
 
-    private Set<Driver> drivers;
+    private List<Driver> drivers;
 
     private List<RoadLane> network;
 
@@ -23,14 +23,19 @@ public class ModelDto {
 
     private List<Attribute> attributes;
 
+    private BigDecimal time;
+
+    private BigDecimal maxDuration;
+
     private Boolean isCompleted;
 
     public static ModelDto of(ModelState modelState) {
         ModelDto modelDto = new ModelDto();
-        modelDto.setDrivers(modelState.getDrivers().stream().peek(driver -> driver.setCar(null)).collect(Collectors.toSet()));
+        modelDto.setDrivers(modelState.getDrivers().stream().peek(driver -> driver.setCar(null)).collect(Collectors.toList()));
         modelDto.setNetwork(modelState.getNetwork());
         modelDto.setTrafficLights(modelState.getTrafficLights());
-        modelDto.setAttributes(modelState.getAttributes());
+        modelDto.setTime(modelState.getTime());
+        modelDto.setMaxDuration(modelState.getMaxDuration());
         modelDto.setIsCompleted(modelState.getIsCompleted());
         return modelDto;
     }
