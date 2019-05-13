@@ -45,6 +45,8 @@ public class ModelState {
 
     private Boolean isCompleted;
 
+    private Boolean isFailed;
+
     public static ModelState of(ModelSettings settings) {
         ModelState modelState = new ModelState();
         modelState.setNetwork(settings.getNetwork().stream().map(RoadDto::toRoadLane).collect(Collectors.toList()));
