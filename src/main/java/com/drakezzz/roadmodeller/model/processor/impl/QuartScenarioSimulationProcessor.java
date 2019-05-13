@@ -3,6 +3,7 @@ package com.drakezzz.roadmodeller.model.processor.impl;
 import com.drakezzz.roadmodeller.model.generator.TrafficGenerator;
 import com.drakezzz.roadmodeller.model.processor.SimulationProcessor;
 import com.drakezzz.roadmodeller.persistence.entity.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 import static com.drakezzz.roadmodeller.persistence.entity.Driver.*;
 import static com.drakezzz.roadmodeller.utils.VectorUtils.*;
 
+@Slf4j
 @Service
 public class QuartScenarioSimulationProcessor implements SimulationProcessor {
 
@@ -59,6 +61,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                             !driver.isFinished())
                     .collect(Collectors.toSet()));
         } else {
+            log.debug("Finished simulation [{}]", modelState.getUuid());
             modelState.setIsCompleted(true);
         }
         return modelState;
@@ -107,14 +110,15 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 .filter(trafficLight ->
                         (trafficLight.getCoordinates().getX() == driver.getCurrentCoordinates().getX() ||
                                 trafficLight.getCoordinates().getY() == driver.getCurrentCoordinates().getY()) &&
-                                distance(trafficLight.getCoordinates(), driver.getCurrentCoordinates()) < 40)
+                                distance(trafficLight.getCoordinates(), driver.getCurrentCoordinates()) < 15 &&
+                                !isBehind(driver.getCurrentCoordinates(), trafficLight.getCoordinates(), speedVector))
                 .count();
-        if (nearTrafficLightsCount < 2) {
+        if (nearTrafficLightsCount == 1) {
             return new Point(speedVector);
         }
 
         for (TrafficLight trafficLight : trafficLightList) {
-            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 20 ||
+            if (distance(driver.getCurrentCoordinates(), trafficLight.getCoordinates()) > 15 ||
                     !isBehind(driver.getCurrentCoordinates(), trafficLight.getCoordinates(), speedVector)) {
                 continue;
             }
