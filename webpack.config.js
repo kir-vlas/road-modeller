@@ -13,7 +13,8 @@ const sourcesPath = './src/main/resources/static';
 
 module.exports = {
     entry: {
-        index: sourcesPath + '/index-module.js'
+        index: sourcesPath + '/index-module.js',
+        register: sourcesPath + '/register-module.js'
     },
     watch: NODE_ENV === 'development',
     output: {

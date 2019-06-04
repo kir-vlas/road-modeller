@@ -13,4 +13,9 @@ public class MainController {
         return "index";
     }
 
+    @ApiOperation("Страница регистрации нового пользователя")
+    @GetMapping("/register")
+    public String register() {
+        return "register";
+    }
 }
