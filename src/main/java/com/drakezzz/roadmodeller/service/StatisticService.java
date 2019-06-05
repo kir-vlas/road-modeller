@@ -7,6 +7,8 @@ public interface StatisticService {
 
     void collectStatistic(ModelState modelState);
 
-    StatisticEntity getStatistic(String modelId);
+    StatisticEntity getFullStatistic(String modelId);
+
+    StatisticEntity getShortStatistic(String modelId);
 
 }

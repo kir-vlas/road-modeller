@@ -91,6 +91,9 @@
                 <input class="settings-input" placeholder="Изменение времени" v-model="modelSettings.timeDelta"/>
             </div>
         </div>
+        <div v-if="shortStatistic">
+            {{`Среднее количество автомобилей, стоящих на светофоре: ${shortStatistic.averageWaitingCars}`}}
+        </div>
         <div class="main-model">
             <div class="render">
                 <canvas ref="model-container"></canvas>
@@ -111,7 +114,8 @@
                 settingsPanel: false,
                 modelList: false,
                 unfinishedModels: [],
-                num: 0,
+                modelIntervalNumber: 0,
+                statsIntervalNumber: 0,
                 freq: 30,
                 provider: {
                     context: null
@@ -128,12 +132,16 @@
                     timeDelta: 0,
                     isNotInitialized: false
                 },
+                shortStatistic: null,
                 cars: 0,
                 maxDuration: 0,
-                time: 0
+                time: 0,
+                carImage: null,
             }
         },
         created() {
+            this.carImage = new Image();
+            this.carImage.src = '/static/car.svg';
             this.$options.sockets.onmessage = (data) => {
                 const modelState = JSON.parse(data.data);
                 let isCompleted = modelState.isCompleted;
@@ -142,13 +150,15 @@
                     this.getStats();
                     this.active = false;
                     console.log("END");
-                    clearInterval(this.num);
+                    clearInterval(this.modelIntervalNumber);
+                    clearInterval(this.statsIntervalNumber);
                 }
                 this.render(modelState);
             };
             this.$options.sockets.onclose = () => {
                 this.active = false;
-                clearInterval(this.num);
+                clearInterval(this.modelIntervalNumber);
+                clearInterval(this.statsIntervalNumber);
             }
         },
         mounted() {
@@ -164,9 +174,11 @@
                 this.active = !this.active;
                 this.stats = "";
                 if (!this.active) {
-                    clearInterval(this.num);
+                    clearInterval(this.modelIntervalNumber);
+                    clearInterval(this.statsIntervalNumber);
                 } else {
-                    this.num = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
+                    this.modelIntervalNumber = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
+                    this.statsIntervalNumber = setInterval(() => this.getShortStatistic(), 1000);
                 }
             },
             execute: function (modelId) {
@@ -174,15 +186,21 @@
                 this.modelList = false;
                 this.model();
             },
+            getShortStatistic: function() {
+                this.$http.get(`/api/v1/models/${this.id}/short`)
+                    .then((res) => {
+                        this.shortStatistic = res.body;
+                    })
+            },
             deleteModel: function (modelId) {
-                this.$http.delete(`/models/${modelId}`);
-                this.$http.get("/models")
+                this.$http.delete(`/api/v1/models/${modelId}`);
+                this.$http.get("/api/v1/models")
                     .then(res => {
                         this.unfinishedModels = res.body;
                     });
             },
             getStats: function () {
-                this.$http.get(`/model/${this.id}`)
+                this.$http.get(`/api/v1/models/${this.id}`)
                     .then(res => {
                         this.stats = res.body;
                     });
@@ -190,7 +208,7 @@
             loadModels: function () {
                 this.modelList = !this.modelList;
                 if (this.modelList) {
-                    this.$http.get("/models")
+                    this.$http.get("/api/v1/models")
                         .then(res => {
                             this.unfinishedModels = res.body;
                         });
@@ -198,11 +216,11 @@
             },
             init: function () {
                 if (this.active) {
-                    clearInterval(this.num);
+                    clearInterval(this.modelIntervalNumber);
                     this.active = false;
                 }
                 this.settingsPanel = false;
-                this.$http.post("/init", this.modelSettings)
+                this.$http.post("/api/v1/models/init", this.modelSettings)
                     .then(res => {
                         this.id = res.body.id
                     });
@@ -266,8 +284,8 @@
                 if (!this.active) {
                     return;
                 }
-                clearInterval(this.num);
-                this.num = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
+                clearInterval(this.modelIntervalNumber);
+                this.modelIntervalNumber = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
             }
         }
     }

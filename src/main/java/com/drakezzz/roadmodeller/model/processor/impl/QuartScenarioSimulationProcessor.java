@@ -46,6 +46,11 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 } else {
                     speedVector = calculateSpeed(driver, Car.getCurrentSpeed(driver.getCar(), true));
                 }
+                if (speedVector.equals(ZERO)) {
+                    driver.setWaitingGreenLight(true);
+                } else {
+                    driver.setWaitingGreenLight(false);
+                }
                 Point currentCoord = driver.getCurrentCoordinates();
                 driver.setCurrentCoordinates(add(currentCoord, speedVector));
 
