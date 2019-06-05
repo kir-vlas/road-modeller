@@ -46,26 +46,24 @@ public class QuartModelInitializer implements ModelInitializer {
 
     private List<RoadLane> buildNetwork() {
         List<RoadLane> network = new LinkedList<>();
-        network.add(buildRoad(new Point(200,760), new Point(200, 50), 7));
-        network.add(buildRoad(new Point(210, 50), new Point(210,760), 7));
-        network.add(buildRoad(new Point(50,200), new Point(760, 200), 7));
-        network.add(buildRoad(new Point(760, 210), new Point(50,210), 7));
-        network.add(buildRoad(new Point(600,760), new Point(600, 50), 7));
-        network.add(buildRoad(new Point(610, 50), new Point(610,760), 7));
-        network.add(buildRoad(new Point(50,600), new Point(760, 600), 7));
-        network.add(buildRoad(new Point(760, 610), new Point(50,610), 7));
+        network.add(buildRoad(new Point(210,760), new Point(210, 50), 7));
+        network.add(buildRoad(new Point(200, 50), new Point(200,760), 7));
+        network.add(buildRoad(new Point(50,210), new Point(760, 210), 7));
+        network.add(buildRoad(new Point(760, 200), new Point(50,200), 7));
+        network.add(buildRoad(new Point(610,760), new Point(610, 50), 7));
+        network.add(buildRoad(new Point(600, 50), new Point(600,760), 7));
+        network.add(buildRoad(new Point(50,610), new Point(760, 610), 7));
+        network.add(buildRoad(new Point(760, 600), new Point(50,600), 7));
         return network;
     }
 
     private List<TrafficLight> buildTrafficLights(List<RoadLane> network) {
         Set<TrafficLight> trafficLights = new HashSet<>();
         for (RoadLane lane1: network) {
-            network.forEach(lane2 -> {
-                VectorUtils.calculateIntersectionPoint(lane1, lane2)
-                        .ifPresent(coord ->
-                                trafficLights.add(buildLight(coord))
-                        );
-            });
+            network.forEach(lane2 -> VectorUtils.calculateIntersectionPoint(lane1, lane2)
+                    .ifPresent(coord ->
+                            trafficLights.add(buildLight(coord))
+                    ));
         }
         return new LinkedList<>(trafficLights);
     }
