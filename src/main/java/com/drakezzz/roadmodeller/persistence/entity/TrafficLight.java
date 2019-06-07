@@ -12,6 +12,10 @@ public class TrafficLight {
 
     private LightStatus previousStatus;
 
+    private LightStatus visibleStatus;
+
+    private LightStatus previousVisibleStatus;
+
     private double redDelay;
 
     private double greenDelay;
@@ -26,6 +30,7 @@ public class TrafficLight {
 
     public void changeLight() {
         incrementCurrentDuration();
+        changeVisibleStatus();
         if (status.equals(LightStatus.GREEN)) {
             if (currentDuration < greenDelay) {
                 return;
@@ -54,6 +59,35 @@ public class TrafficLight {
             previousStatus = LightStatus.RED;
             status = LightStatus.YELLOW;
             currentDuration = 0;
+        }
+    }
+
+    private void changeVisibleStatus() {
+        if (visibleStatus.equals(LightStatus.GREEN)) {
+            if (currentDuration < greenDelay) {
+                return;
+            }
+            previousVisibleStatus = LightStatus.GREEN;
+            visibleStatus = LightStatus.YELLOW;
+            return;
+        }
+        if (visibleStatus.equals(LightStatus.YELLOW)) {
+            if (currentDuration < YELLOW_DELAY) {
+                return;
+            }
+            if (previousVisibleStatus.equals(LightStatus.GREEN)) {
+                visibleStatus = LightStatus.RED;
+            } else if (previousVisibleStatus.equals(LightStatus.RED)) {
+                visibleStatus = LightStatus.GREEN;
+            }
+            return;
+        }
+        if (visibleStatus.equals(LightStatus.RED)) {
+            if (currentDuration < redDelay) {
+                return;
+            }
+            previousVisibleStatus = LightStatus.RED;
+            visibleStatus = LightStatus.YELLOW;
         }
     }
 

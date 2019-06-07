@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+/**
+ * Action executor for testing WebSocket transport system
+ */
 @Service
 //@Primary
 public class MockActionExecutor implements ContiniusActionExecutor {
