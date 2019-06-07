@@ -3,6 +3,7 @@ package com.drakezzz.roadmodeller.web.dto;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Set;
 
@@ -13,6 +14,8 @@ public class StatisticEntity {
     private String id;
 
     private BigInteger overallCarsCount;
+
+    private BigDecimal averageWaitingCars;
 
     private Set<String> drivers;
 
