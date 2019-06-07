@@ -38,7 +38,7 @@ public class IntelligentDriverModel implements DriverModel {
     @Override
     public double updateDesiredVelocity(Driver driver) {
         double vMax = driver.getCar().getMaxSpeed();
-        double laneSpeedLimit = driver.getCar().getCurrentLane().getLegalMaxSpeedInMetersPerSec();
+        double laneSpeedLimit = driver.getCar().getCurrentLane().calculateLegalMaxSpeedInMetersPerSec();
         double desiredVelocity = desiredVelocity(vMax, laneSpeedLimit, driver.getAttributeValue(F_SPEED));
         driver.setAttribute(V0, desiredVelocity);
         return driver.getAttributeValue(V0);

@@ -67,7 +67,7 @@ public class QuartModelInitializer implements ModelInitializer {
                     ));
         }
         List<RoadLane> horizontalRoads = network.stream()
-                .filter(RoadLane::isHorizontal)
+                .filter(RoadLane::getIsHorizontal)
                 .collect(Collectors.toList());
         for (int i = 0; i < horizontalRoads.size(); i++) {
             RoadLane roadLane = horizontalRoads.get(i);
