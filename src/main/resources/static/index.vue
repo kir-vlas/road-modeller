@@ -83,7 +83,7 @@
                         <input placeholder="Координата X" v-model="trafficLight.coordinates.x"/>
                         <input placeholder="Координата Y" v-model="trafficLight.coordinates.y"/>
                     </div>
-                </div>
+                </div>25
                 <button class="btn" v-on:click="addLight">Добавить светофор</button>
                 <h4>Длительность моделирования</h4>
                 <input class="settings-input" placeholder="Максимальная продолжительность"
@@ -93,6 +93,17 @@
         </div>
         <div v-if="shortStatistic">
             {{`Среднее количество автомобилей, стоящих на светофоре: ${shortStatistic.averageWaitingCars}`}}
+        </div>
+        <div v-if="active">
+            <label>
+                Длительность красного светофора
+                <input v-model="redDelay"/>
+            </label>
+            <label>
+                Длительность зеленого светофора
+                <input v-model="greenDelay"/>
+            </label>
+            <button @click="changeLights">Применить</button>
         </div>
         <div class="main-model">
             <div class="render">
@@ -113,6 +124,8 @@
                 active: false,
                 settingsPanel: false,
                 modelList: false,
+                redDelay: 0,
+                greenDelay: 0,
                 unfinishedModels: [],
                 modelIntervalNumber: 0,
                 statsIntervalNumber: 0,
@@ -180,6 +193,11 @@
                     this.modelIntervalNumber = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
                     this.statsIntervalNumber = setInterval(() => this.getShortStatistic(), 1000);
                 }
+            },
+            changeLights: function() {
+                this.model();
+                this.$http.get(`/api/v1/models/lights/${this.id}?redDelay=${this.redDelay}&greenDelay=${this.greenDelay}`)
+                    .then(() => this.model() )
             },
             execute: function (modelId) {
                 this.id = modelId;

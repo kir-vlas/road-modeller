@@ -36,9 +36,16 @@ public class ModellerController {
         return new ModelId(id);
     }
 
-    @ApiOperation("Изменение параметров модели")
-    @PostMapping
-    public StatusResult editModel(@RequestBody @ApiParam("Измененное состояние модели") ModelState modelState) {
+    @ApiOperation("Изменение длительности светофоров")
+    @GetMapping("/lights/{modelId}")
+    public StatusResult editModel(@PathVariable String modelId,
+                                  @RequestParam double redDelay,
+                                  @RequestParam double greenDelay) {
+        ModelState modelState = modelRepositoryProvider.getModelState(modelId);
+        modelState.getTrafficLights().forEach(trafficLight -> {
+            trafficLight.setRedDelay(redDelay);
+            trafficLight.setGreenDelay(greenDelay);
+        });
         modelRepositoryProvider.saveToDatabase(modelState);
         return StatusResult.ok();
     }

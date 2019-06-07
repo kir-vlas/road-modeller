@@ -3,6 +3,7 @@ package com.drakezzz.roadmodeller.service.impl;
 import com.drakezzz.roadmodeller.persistence.entity.Car;
 import com.drakezzz.roadmodeller.persistence.entity.Driver;
 import com.drakezzz.roadmodeller.persistence.entity.ModelState;
+import com.drakezzz.roadmodeller.persistence.entity.TrafficLight;
 import com.drakezzz.roadmodeller.persistence.repository.StatisticEntityRepository;
 import com.drakezzz.roadmodeller.service.ModelRepositoryProvider;
 import com.drakezzz.roadmodeller.service.StatisticService;
