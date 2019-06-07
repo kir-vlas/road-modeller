@@ -15,6 +15,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Main action executor for modelling
+ */
 @Slf4j
 @Service
 @Primary
@@ -63,6 +66,7 @@ public class ModellerExecutor implements ContiniusActionExecutor {
             modelState = simulationProcessor.simulate(modelState);
         } catch (RuntimeException ex) {
             log.error("Error with model processing with id = [{}]. Stopping modelling", actionId);
+            modelState.setIsCompleted(true);
             modelState.setIsFailed(true);
         }
         statisticService.collectStatistic(modelState);

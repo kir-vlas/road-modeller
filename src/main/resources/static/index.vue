@@ -284,7 +284,7 @@
                 if (modelState.trafficLights) {
                     modelState.trafficLights.forEach((light) => {
                         this.provider.context.strokeStyle = 'blue';
-                        this.provider.context.fillStyle = light.status.toLowerCase();
+                        this.provider.context.fillStyle = light.visibleStatus.toLowerCase();
                         this.provider.context.fillRect(light.coordinates.x, light.coordinates.y, 5, 5);
                     });
                 }

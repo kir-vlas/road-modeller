@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -64,6 +65,35 @@ public class QuartModelInitializer implements ModelInitializer {
                     .ifPresent(coord ->
                             trafficLights.add(buildLight(coord))
                     ));
+        }
+        List<RoadLane> horizontalRoads = network.stream()
+                .filter(RoadLane::isHorizontal)
+                .collect(Collectors.toList());
+        for (int i = 0; i < horizontalRoads.size(); i++) {
+            RoadLane roadLane = horizontalRoads.get(i);
+            List<TrafficLight> roadLights = trafficLights.stream()
+                    .filter(light ->
+                            roadLane.getCoordinates().get(0).getY() == light.getCoordinates().getY())
+                    .sorted((light1, light2) ->
+                            VectorUtils.compareCoordinates(light1.getCoordinates(), light2.getCoordinates()))
+                    .collect(Collectors.toList());
+            if (i % 2 == 0) {
+                for (int j = 0; j < roadLights.size(); j++) {
+                    if (j % 2 == 0) {
+                        roadLights.get(j).setVisibleStatus(LightStatus.RED);
+                    } else {
+                        roadLights.get(j).setVisibleStatus(LightStatus.GREEN);
+                    }
+                }
+            } else {
+                for (int j = 0; j < roadLights.size(); j++) {
+                    if (j % 2 == 0) {
+                        roadLights.get(j).setVisibleStatus(LightStatus.GREEN);
+                    } else {
+                        roadLights.get(j).setVisibleStatus(LightStatus.RED);
+                    }
+                }
+            }
         }
         return new LinkedList<>(trafficLights);
     }
