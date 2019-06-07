@@ -18,17 +18,15 @@ public interface ModelInitializer {
         roadLane.setMaxSpeedLimit(60);
         List<Point> coordinates = new ArrayList<>();
         if (origin.getX() != dest.getX()) {
-            roadLane.setHorizontal(true);
+            roadLane.setIsHorizontal(true);
         } else {
-            roadLane.setHorizontal(false);
+            roadLane.setIsHorizontal(false);
         }
         coordinates.add(origin);
         coordinates.add(dest);
         roadLane.setCoordinates(coordinates);
         roadLane.setLength(VectorUtils.distance(origin, dest));
         roadLane.setTrafficGeneratorFactor(trafficFactor);
-        roadLane.setCanTurnLeft(false);
-        roadLane.setCanTurnRight(false);
         return roadLane;
     }
 

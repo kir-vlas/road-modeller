@@ -1,5 +1,7 @@
 package com.drakezzz.roadmodeller.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.geo.Point;
 
@@ -8,20 +10,28 @@ public class TrafficLight {
 
     private static final double YELLOW_DELAY = 60;
 
+    @JsonIgnore
     private LightStatus status;
 
+    @JsonIgnore
     private LightStatus previousStatus;
 
+    @JsonProperty("l")
     private LightStatus visibleStatus;
 
+    @JsonIgnore
     private LightStatus previousVisibleStatus;
 
+    @JsonIgnore
     private double redDelay;
 
+    @JsonIgnore
     private double greenDelay;
 
+    @JsonIgnore
     private double currentDuration;
 
+    @JsonProperty("crd")
     private Point coordinates;
 
     private void incrementCurrentDuration() {

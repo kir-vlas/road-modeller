@@ -261,9 +261,9 @@
                 this.provider.context.fillStyle = "#dbebb9";
                 this.provider.context.fillRect(0, 0, 950, 1000);
                 modelState.network.forEach((roadLane) => {
-                    const coords = roadLane.coordinates;
+                    const coords = roadLane.crds;
                     this.provider.context.strokeStyle = "white";
-                    if (roadLane.horizontal) {
+                    if (roadLane.hor) {
                         this.provider.context.beginPath();
                         this.provider.context.moveTo(coords[0].x, coords[0].y);
                         this.provider.context.lineTo(coords[0].x, coords[0].y + 10);
@@ -284,15 +284,15 @@
                 if (modelState.trafficLights) {
                     modelState.trafficLights.forEach((light) => {
                         this.provider.context.strokeStyle = 'blue';
-                        this.provider.context.fillStyle = light.visibleStatus.toLowerCase();
-                        this.provider.context.fillRect(light.coordinates.x, light.coordinates.y, 5, 5);
+                        this.provider.context.fillStyle = light.l.toLowerCase();
+                        this.provider.context.fillRect(light.crd.x, light.crd.y, 5, 5);
                     });
                 }
                 if (modelState.drivers) {
                     this.cars = modelState.drivers.length;
                     modelState.drivers.forEach((driver) => {
                         this.provider.context.fillStyle = "#8597eb";
-                        this.provider.context.fillRect(driver.currentCoordinates.x, driver.currentCoordinates.y, 10, 10)
+                        this.provider.context.fillRect(driver.crd.x, driver.crd.y, 10, 10)
                     });
                 }
                 this.time = modelState.time;

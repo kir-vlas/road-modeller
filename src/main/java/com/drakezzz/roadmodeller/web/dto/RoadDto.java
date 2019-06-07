@@ -22,7 +22,7 @@ public class RoadDto {
     public RoadLane toRoadLane() {
         RoadLane roadLane = new RoadLane();
         roadLane.setLength(length);
-        roadLane.setHorizontal(isHorizontal);
+        roadLane.setIsHorizontal(isHorizontal);
         roadLane.setCoordinates(coordinates.stream().map(PointDto::toPoint).collect(Collectors.toList()));
         roadLane.setMaxSpeedLimit(maxSpeedLimit);
         roadLane.setTrafficGeneratorFactor(trafficGeneratorFactor);
