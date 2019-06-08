@@ -5,6 +5,8 @@ logging:
 spring:
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: models
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      database: ${MONGO_DATABASE}
+      username: ${MONGO_USER}
+      password: ${MONGO_PASS}
