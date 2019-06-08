@@ -52,7 +52,7 @@ Vue.use(Table);
 Vue.use(Row);
 
 
-Vue.use(VueNativeSock, `ws://${window.location.host}/event-tick`);
+Vue.use(VueNativeSock, `wss://${window.location.host}/event-tick`);
 
 Vue.component("index", index);
 
