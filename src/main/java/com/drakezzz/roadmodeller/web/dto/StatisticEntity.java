@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,5 +20,7 @@ public class StatisticEntity {
     private BigDecimal averageWaitingCars;
 
     private Set<String> drivers;
+
+    private List<BigDecimal> averageWaitingTime = new LinkedList<>();
 
 }

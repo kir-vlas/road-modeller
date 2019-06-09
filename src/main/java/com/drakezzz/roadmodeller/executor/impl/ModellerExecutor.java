@@ -5,7 +5,6 @@ import com.drakezzz.roadmodeller.model.init.ModelInitializer;
 import com.drakezzz.roadmodeller.model.processor.SimulationProcessor;
 import com.drakezzz.roadmodeller.persistence.entity.ModelState;
 import com.drakezzz.roadmodeller.service.ModelRepositoryProvider;
-import com.drakezzz.roadmodeller.service.StatisticService;
 import com.drakezzz.roadmodeller.web.dto.ModelSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -26,13 +25,11 @@ public class ModellerExecutor implements ContiniusActionExecutor {
     private final ModelRepositoryProvider modelRepositoryProvider;
     private final SimulationProcessor simulationProcessor;
     private final ModelInitializer modelInitializer;
-    private final StatisticService statisticService;
 
-    public ModellerExecutor(ModelRepositoryProvider modelRepositoryProvider, SimulationProcessor simulationProcessor, ModelInitializer modelInitializer, StatisticService statisticService) {
+    public ModellerExecutor(ModelRepositoryProvider modelRepositoryProvider, SimulationProcessor simulationProcessor, ModelInitializer modelInitializer) {
         this.modelRepositoryProvider = modelRepositoryProvider;
         this.simulationProcessor = simulationProcessor;
         this.modelInitializer = modelInitializer;
-        this.statisticService = statisticService;
     }
 
     @Override
@@ -69,7 +66,6 @@ public class ModellerExecutor implements ContiniusActionExecutor {
             modelState.setIsCompleted(true);
             modelState.setIsFailed(true);
         }
-        statisticService.collectStatistic(modelState);
         modelRepositoryProvider.saveToDatabase(modelState);
         return modelState;
     }
