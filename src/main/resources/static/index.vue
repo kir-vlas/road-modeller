@@ -110,15 +110,18 @@
                 <canvas ref="model-container"></canvas>
             </div>
             <div class="stats">
-                <textarea readonly class="stats-box">{{stats}}</textarea>
+                <chart v-if="statsChart" :chart-data="statsChart" :options="options"></chart>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+    import chart from './chart.vue';
+
     export default {
         name: 'index',
+        components: {chart},
         data() {
             return {
                 active: false,
@@ -127,6 +130,25 @@
                 redDelay: 0,
                 greenDelay: 0,
                 unfinishedModels: [],
+                statsChart: null,
+                options: {
+                    responsive: true,
+                    animation: false,
+                    scales: {
+                        yAxes : [{
+                            ticks : {
+                                max : 10,
+                                min : 0
+                            }
+                        }],
+                        xAxes : [{
+                            ticks : {
+                                max : 30,
+                                min : 30
+                            }
+                        }]
+                    }
+                },
                 modelIntervalNumber: 0,
                 statsIntervalNumber: 0,
                 freq: 30,
@@ -195,6 +217,20 @@
                     this.statsIntervalNumber = setInterval(() => this.getShortStatistic(), 1000);
                 }
             },
+            renderChart: function() {
+                const dataset = this.shortStatistic.averageWaitingTime.slice(-30);
+                this.statsChart = {
+                    labels: new Array(30),
+                    datasets: [
+                        {
+                            label: 'Среднее количество машин на светофоре',
+                            borderColor: '#44b900',
+                            borderWidth: 1,
+                            data: dataset,
+                        }
+                    ]
+                }
+            },
             changeLights: function() {
                 this.model();
                 this.$http.get(`/api/v1/models/lights/${this.id}?redDelay=${this.redDelay}&greenDelay=${this.greenDelay}`)
@@ -209,6 +245,7 @@
                 this.$http.get(`/api/v1/models/${this.id}/short`)
                     .then((res) => {
                         this.shortStatistic = res.body;
+                        this.renderChart();
                     })
             },
             deleteModel: function (modelId) {
@@ -356,11 +393,6 @@
 
     .stats {
         width: 700px;
-    }
-
-    .stats-box {
-        width: 700px;
-        height: 993px;
     }
 
     .main-model {

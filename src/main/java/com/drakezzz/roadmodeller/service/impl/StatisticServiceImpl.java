@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.stream.Collectors;
 
 @Service
 public class StatisticServiceImpl implements StatisticService {
@@ -25,18 +24,6 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public void collectStatistic(ModelState modelState) {
-        StatisticEntity statisticEntity = getFullStatistic(modelState.getUuid());
-        statisticEntity.getDrivers().addAll(modelState
-                .getDrivers()
-                .stream()
-                .map(Driver::getId)
-                .collect(Collectors.toSet())
-        );
-        statisticEntityRepository.save(statisticEntity);
-    }
-
-    @Override
     public StatisticEntity getFullStatistic(String modelId) {
         return statisticEntityRepository
                 .findById(modelId)
@@ -45,13 +32,17 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public StatisticEntity getShortStatistic(String modelId) {
+        StatisticEntity statisticEntity = getFullStatistic(modelId);
         ModelState modelState = modelRepositoryProvider.getModelState(modelId);
         long waitingCars = modelState
                 .getDrivers().stream()
                 .filter(Driver::getIsWaitingGreenLight)
                 .count();
-        StatisticEntity statisticEntity = new StatisticEntity();
-        statisticEntity.setAverageWaitingCars(BigDecimal.valueOf((double) waitingCars / ((double) modelState.getNetwork().size() / 2)));
+        BigDecimal averageWaitingCars = BigDecimal.valueOf((double) waitingCars / ((double) modelState.getNetwork().size() / 2));
+        statisticEntity.getAverageWaitingTime().add(averageWaitingCars);
+        statisticEntity.setAverageWaitingCars(averageWaitingCars);
+        statisticEntity.setOverallCarsCount(modelState.getOverallCars());
+        statisticEntityRepository.save(statisticEntity);
         return statisticEntity;
     }
 

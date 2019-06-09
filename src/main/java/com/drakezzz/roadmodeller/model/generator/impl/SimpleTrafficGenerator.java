@@ -9,6 +9,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,9 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
 
     @Override
     public ModelState generateTraffic(ModelState modelState) {
-        modelState.getDrivers().addAll(createDrivers(modelState.getNetwork()));
+        Set<Driver> newDrivers = createDrivers(modelState.getNetwork());
+        modelState.getDrivers().addAll(newDrivers);
+        modelState.setOverallCars(modelState.getOverallCars().add(BigInteger.valueOf(newDrivers.size())));
         modelState.setCars(modelState.getDrivers().stream().map(Driver::getCar).collect(Collectors.toList()));
         return modelState;
     }

@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +50,8 @@ public class ModelState {
     private Boolean isTrafficLightsFlex;
 
     private Boolean isFailed;
+
+    private BigInteger overallCars = BigInteger.ZERO;
 
     public static ModelState of(ModelSettings settings) {
         ModelState modelState = new ModelState();
