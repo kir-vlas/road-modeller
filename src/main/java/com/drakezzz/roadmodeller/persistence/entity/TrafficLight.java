@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 public class TrafficLight {
 
-    private static final double YELLOW_DELAY = 60;
+    private static final double YELLOW_DELAY = 45;
 
     private static final double FLEX_STEP = 20;
 
@@ -53,10 +53,13 @@ public class TrafficLight {
     }
 
     public void determineFlexibility(double waitingCars) {
-        if (flexibilityFactor > maxFlexibility) {
+        if (status.equals(LightStatus.YELLOW) || flexibilityFactor > maxFlexibility) {
             return;
         }
         flexibilityFactor = waitingCars * FLEX_STEP;
+        if (flexibilityFactor > maxFlexibility) {
+            flexibilityFactor = maxFlexibility;
+        }
     }
 
     public void changeLight() {
@@ -67,6 +70,7 @@ public class TrafficLight {
             if (duration < greenDelay) {
                 return;
             }
+            waitingCars = new HashSet<>();
             previousStatus = LightStatus.GREEN;
             status = LightStatus.YELLOW;
             currentDuration = 0;
@@ -89,6 +93,7 @@ public class TrafficLight {
             if (duration < redDelay) {
                 return;
             }
+            waitingCars = new HashSet<>();
             previousStatus = LightStatus.RED;
             status = LightStatus.YELLOW;
             currentDuration = 0;

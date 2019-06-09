@@ -1,13 +1,9 @@
 package com.drakezzz.roadmodeller.api.controller;
 
 import com.drakezzz.roadmodeller.executor.ContiniusActionExecutor;
-import com.drakezzz.roadmodeller.persistence.entity.ModelState;
 import com.drakezzz.roadmodeller.service.ModelRepositoryProvider;
 import com.drakezzz.roadmodeller.service.StatisticService;
-import com.drakezzz.roadmodeller.web.dto.ModelId;
-import com.drakezzz.roadmodeller.web.dto.ModelSettings;
-import com.drakezzz.roadmodeller.web.dto.StatisticEntity;
-import com.drakezzz.roadmodeller.web.dto.StatusResult;
+import com.drakezzz.roadmodeller.web.dto.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
@@ -36,18 +32,10 @@ public class ModellerController {
         return new ModelId(id);
     }
 
-    @ApiOperation("Изменение длительности светофоров")
-    @GetMapping("/lights/{modelId}")
-    public StatusResult editModel(@PathVariable String modelId,
-                                  @RequestParam double redDelay,
-                                  @RequestParam double greenDelay) {
-        ModelState modelState = modelRepositoryProvider.getModelState(modelId);
-        modelState.getTrafficLights().forEach(trafficLight -> {
-            trafficLight.setRedDelay(redDelay);
-            trafficLight.setGreenDelay(greenDelay);
-        });
-        modelRepositoryProvider.saveToDatabase(modelState);
-        return StatusResult.ok();
+    @ApiOperation("Изменение параметров модели")
+    @PutMapping("/{modelId}/update")
+    public StatusResult editModel(@PathVariable String modelId, @RequestBody SettingsUpdate settingsUpdate) {
+        return executor.updateModel(modelId, settingsUpdate);
     }
 
     @ApiOperation("Получение полной статистики модели")

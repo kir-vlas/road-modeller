@@ -8,6 +8,7 @@ import com.drakezzz.roadmodeller.persistence.entity.RoadLane;
 import com.drakezzz.roadmodeller.persistence.entity.TrafficLight;
 import com.drakezzz.roadmodeller.utils.VectorUtils;
 import com.drakezzz.roadmodeller.web.dto.ModelSettings;
+import com.drakezzz.roadmodeller.web.dto.QuartTrafficGenerate;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class QuartModelInitializer implements ModelInitializer {
     @Override
     public ModelState initializeModel(ModelSettings settings) {
         ModelState modelState = new ModelState();
-        modelState.setNetwork(buildNetwork());
+        modelState.setNetwork(buildNetwork(settings.getTrafficGenerate()));
         modelState.setMaxDuration(BigDecimal.valueOf(10000));
         modelState.setTimeDelta(BigDecimal.valueOf(1));
         modelState.setTrafficLights(buildTrafficLights(modelState.getNetwork()));
@@ -46,16 +47,16 @@ public class QuartModelInitializer implements ModelInitializer {
         return modelState;
     }
 
-    private List<RoadLane> buildNetwork() {
+    private List<RoadLane> buildNetwork(QuartTrafficGenerate trafficGenerationFactor) {
         List<RoadLane> network = new LinkedList<>();
-        network.add(buildRoad(new Point(210,760), new Point(210, 50), 7));
-        network.add(buildRoad(new Point(200, 50), new Point(200,760), 7));
-        network.add(buildRoad(new Point(50,210), new Point(760, 210), 7));
-        network.add(buildRoad(new Point(760, 200), new Point(50,200), 7));
-        network.add(buildRoad(new Point(610,760), new Point(610, 50), 7));
-        network.add(buildRoad(new Point(600, 50), new Point(600,760), 7));
-        network.add(buildRoad(new Point(50,610), new Point(760, 610), 7));
-        network.add(buildRoad(new Point(760, 600), new Point(50,600), 7));
+        network.add(buildRoad(new Point(210,760), new Point(210, 50), trafficGenerationFactor.getRoad1()));
+        network.add(buildRoad(new Point(200, 50), new Point(200,760), trafficGenerationFactor.getRoad2()));
+        network.add(buildRoad(new Point(50,210), new Point(760, 210), trafficGenerationFactor.getRoad3()));
+        network.add(buildRoad(new Point(760, 200), new Point(50,200), trafficGenerationFactor.getRoad4()));
+        network.add(buildRoad(new Point(610,760), new Point(610, 50), trafficGenerationFactor.getRoad5()));
+        network.add(buildRoad(new Point(600, 50), new Point(600,760), trafficGenerationFactor.getRoad6()));
+        network.add(buildRoad(new Point(50,610), new Point(760, 610), trafficGenerationFactor.getRoad7()));
+        network.add(buildRoad(new Point(760, 600), new Point(50,600), trafficGenerationFactor.getRoad8()));
         return network;
     }
 

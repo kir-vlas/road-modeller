@@ -4,8 +4,6 @@ import com.drakezzz.roadmodeller.model.generator.TrafficGenerator;
 import com.drakezzz.roadmodeller.model.processor.SimulationProcessor;
 import com.drakezzz.roadmodeller.persistence.entity.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.tools.ant.util.CollectionUtils;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +21,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
 
     private static final Point SAFE_POINT_POSITIVE = new Point(1000, 1000);
     private static final Point SAFE_POINT_NEGATIVE = new Point(-1000, -1000);
-    private static final double MIN_AVG_WAITING_CARS_TRIGGER = 1;
+    private static final double MIN_AVG_WAITING_CARS_TRIGGER = 3;
 
     private final TrafficGenerator trafficGenerator;
 
@@ -101,8 +99,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                     .mapToInt(trafficLight ->
                             trafficLight.getWaitingCars().size())
                     .filter(cnt -> cnt != 0)
-                    .average()
-                    .orElse(0);
+                    .sum();
             if (avgWaitingCars < MIN_AVG_WAITING_CARS_TRIGGER) {
                 return;
             }

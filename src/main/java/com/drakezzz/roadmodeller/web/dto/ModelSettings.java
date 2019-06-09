@@ -27,4 +27,6 @@ public class ModelSettings {
 
     private Boolean isFlex;
 
+    private QuartTrafficGenerate trafficGenerate;
+
 }
