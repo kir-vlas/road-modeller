@@ -5,8 +5,4 @@ logging:
 spring:
   data:
     mongodb:
-      host: ${MONGO_HOST}
-      port: ${MONGO_PORT}
-      database: ${MONGO_DATABASE}
-      username: ${MONGO_USER}
-      password: ${MONGO_PASS}
+      uri: ${MONGODB_URI}
