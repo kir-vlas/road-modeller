@@ -50,6 +50,6 @@ appender("STDOUT", ConsoleAppender) {
 
 logger("com.drakezzz.roadmodeller.ModellerApplication", INFO, ["STDOUT"], false)
 logger("com.drakezzz.roadmodeller", DEBUG, ["DEBUG_INFO_FILE", "STDOUT"], false)
-logger("com.drakezzz.roadmodeller.executor.impl.ModellerExecutor", DEBUG, ["DEBUG_INFO_FILE", "STDOUT"], false)
+logger("com.drakezzz.roadmodeller.executor.impl.ModellerExecutor", DEBUG, ["DEBUG_INFO_FILE", "WARN_ERROR_FILE"], false)
 logger("com.drakezzz.roadmodeller.model.processor.impl", DEBUG, ["DEBUG_INFO_FILE", "STDOUT"], false)
 root(ERROR, ["STDOUT"])

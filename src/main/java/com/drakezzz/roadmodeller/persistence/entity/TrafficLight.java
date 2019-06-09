@@ -5,10 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.geo.Point;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 public class TrafficLight {
 
     private static final double YELLOW_DELAY = 60;
+
+    private static final double FLEX_STEP = 20;
 
     @JsonIgnore
     private LightStatus status;
@@ -29,6 +34,15 @@ public class TrafficLight {
     private double greenDelay;
 
     @JsonIgnore
+    private double maxFlexibility;
+
+    @JsonIgnore
+    private Set<String> waitingCars = new HashSet<>();
+
+    @JsonIgnore
+    private double flexibilityFactor;
+
+    @JsonIgnore
     private double currentDuration;
 
     @JsonProperty("crd")
@@ -38,11 +52,19 @@ public class TrafficLight {
         currentDuration++;
     }
 
+    public void determineFlexibility(double waitingCars) {
+        if (flexibilityFactor > maxFlexibility) {
+            return;
+        }
+        flexibilityFactor = waitingCars * FLEX_STEP;
+    }
+
     public void changeLight() {
         incrementCurrentDuration();
         changeVisibleStatus();
+        double duration = currentDuration + flexibilityFactor;
         if (status.equals(LightStatus.GREEN)) {
-            if (currentDuration < greenDelay) {
+            if (duration < greenDelay) {
                 return;
             }
             previousStatus = LightStatus.GREEN;
@@ -60,10 +82,11 @@ public class TrafficLight {
                 status = LightStatus.GREEN;
             }
             currentDuration = 0;
+            waitingCars = new HashSet<>();
             return;
         }
         if (status.equals(LightStatus.RED)) {
-            if (currentDuration < redDelay) {
+            if (duration < redDelay) {
                 return;
             }
             previousStatus = LightStatus.RED;
@@ -73,8 +96,9 @@ public class TrafficLight {
     }
 
     private void changeVisibleStatus() {
+        double duration = currentDuration + flexibilityFactor;
         if (visibleStatus.equals(LightStatus.GREEN)) {
-            if (currentDuration < greenDelay) {
+            if (duration < greenDelay) {
                 return;
             }
             previousVisibleStatus = LightStatus.GREEN;
@@ -93,7 +117,7 @@ public class TrafficLight {
             return;
         }
         if (visibleStatus.equals(LightStatus.RED)) {
-            if (currentDuration < redDelay) {
+            if (duration < redDelay) {
                 return;
             }
             previousVisibleStatus = LightStatus.RED;

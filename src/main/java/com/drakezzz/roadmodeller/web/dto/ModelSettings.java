@@ -25,4 +25,6 @@ public class ModelSettings {
 
     private Boolean isNotInitialized;
 
+    private Boolean isFlex;
+
 }
