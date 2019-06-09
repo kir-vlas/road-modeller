@@ -65,7 +65,7 @@ public class ModellerExecutor implements ContiniusActionExecutor {
         try {
             modelState = simulationProcessor.simulate(modelState);
         } catch (RuntimeException ex) {
-            log.error("Error with model processing with id = [{}]. Stopping modelling", actionId);
+            log.error("Error with model processing with id = [{}]. Stopping modelling. Error = {}", actionId, ex);
             modelState.setIsCompleted(true);
             modelState.setIsFailed(true);
         }

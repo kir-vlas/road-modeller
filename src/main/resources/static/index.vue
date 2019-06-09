@@ -143,7 +143,8 @@
                     attributes: [],
                     maxDuration: 0,
                     timeDelta: 0,
-                    isNotInitialized: false
+                    isNotInitialized: false,
+                    isFlex: true,
                 },
                 shortStatistic: null,
                 cars: 0,

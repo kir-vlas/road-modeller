@@ -41,6 +41,7 @@ public class QuartModelInitializer implements ModelInitializer {
         modelState.setTimeDelta(BigDecimal.valueOf(1));
         modelState.setTrafficLights(buildTrafficLights(modelState.getNetwork()));
         modelState.setDrivers(new HashSet<>());
+        modelState.setIsTrafficLightsFlex(settings.getIsFlex());
         modelState = trafficGenerator.generateTraffic(modelState);
         return modelState;
     }
@@ -105,6 +106,7 @@ public class QuartModelInitializer implements ModelInitializer {
         trafficLight.setRedDelay(300);
         trafficLight.setGreenDelay(300);
         trafficLight.setCurrentDuration(0);
+        trafficLight.setMaxFlexibility(200);
         return trafficLight;
     }
 

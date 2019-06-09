@@ -4,9 +4,12 @@ import com.drakezzz.roadmodeller.model.generator.TrafficGenerator;
 import com.drakezzz.roadmodeller.model.processor.SimulationProcessor;
 import com.drakezzz.roadmodeller.persistence.entity.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.tools.ant.util.CollectionUtils;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +23,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
 
     private static final Point SAFE_POINT_POSITIVE = new Point(1000, 1000);
     private static final Point SAFE_POINT_NEGATIVE = new Point(-1000, -1000);
+    private static final double MIN_AVG_WAITING_CARS_TRIGGER = 1;
 
     private final TrafficGenerator trafficGenerator;
 
@@ -58,6 +62,9 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                     driver.setIsFinished(true);
                 }
             });
+            if (modelState.getIsTrafficLightsFlex()) {
+                adaptLights(trafficLights);
+            }
             trafficLights.forEach(TrafficLight::changeLight);
             checkCollisions(drivers);
             cleanCars(drivers);
@@ -81,6 +88,29 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 .collect(Collectors.toSet()));
     }
 
+    private void adaptLights(List<TrafficLight> trafficLights) {
+        List<List<TrafficLight>> intersections = new LinkedList<>();
+        for (TrafficLight trafficLight : trafficLights) {
+            intersections.add(trafficLights.stream()
+                    .filter(light ->
+                            distance(light.getCoordinates(), trafficLight.getCoordinates()) < 20)
+                    .collect(Collectors.toList()));
+        }
+        intersections.forEach(intersection -> {
+            double avgWaitingCars = intersection.stream()
+                    .mapToInt(trafficLight ->
+                            trafficLight.getWaitingCars().size())
+                    .filter(cnt -> cnt != 0)
+                    .average()
+                    .orElse(0);
+            if (avgWaitingCars < MIN_AVG_WAITING_CARS_TRIGGER) {
+                return;
+            }
+            intersection.forEach(trafficLight ->
+                    trafficLight.determineFlexibility(avgWaitingCars - MIN_AVG_WAITING_CARS_TRIGGER));
+        });
+    }
+
     private boolean isDriverBrakes(Set<Driver> drivers, Driver currentDriver, Point speedVector) {
         List<Driver> driversInSameRoad;
         if (speedVector.equals(ZERO)) {
@@ -89,7 +119,8 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
         }
         driversInSameRoad = drivers.stream()
                 .filter(driver ->
-                        driver.getDestinationCoordinates().equals(currentDriver.getDestinationCoordinates()))
+                        !currentDriver.equals(driver) &&
+                                driver.getDestinationCoordinates().equals(currentDriver.getDestinationCoordinates()))
                 .collect(Collectors.toList());
         if (driversInSameRoad.isEmpty()) {
             return false;
@@ -98,7 +129,8 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 compareCoordinates(driver1.getCurrentCoordinates(), driver2.getCurrentCoordinates()));
         if (!speedVector.equals(ZERO)) {
             for (Driver driver : driversInSameRoad) {
-                if (!currentDriver.equals(driver) && distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 25 && isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector)) {
+                if (distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 25 &&
+                        isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector)) {
                     currentDriver.setIsWaitingGreenLight(true);
                     return true;
                 }
@@ -127,6 +159,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                     !isBehind(driver.getCurrentCoordinates(), trafficLight.getCoordinates(), speedVector)) {
                 continue;
             }
+            trafficLight.getWaitingCars().add(driver.getId());
             if (LightStatus.RED.equals(trafficLight.getStatus())) {
                 return new Point(0, speedVector.getY());
             }
