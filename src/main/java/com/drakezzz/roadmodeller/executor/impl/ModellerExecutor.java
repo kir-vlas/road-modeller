@@ -4,9 +4,13 @@ import com.drakezzz.roadmodeller.executor.ContiniusActionExecutor;
 import com.drakezzz.roadmodeller.model.init.ModelInitializer;
 import com.drakezzz.roadmodeller.model.processor.SimulationProcessor;
 import com.drakezzz.roadmodeller.persistence.entity.ModelState;
+import com.drakezzz.roadmodeller.persistence.entity.TrafficLight;
 import com.drakezzz.roadmodeller.service.ModelRepositoryProvider;
 import com.drakezzz.roadmodeller.web.dto.ModelSettings;
+import com.drakezzz.roadmodeller.web.dto.SettingsUpdate;
+import com.drakezzz.roadmodeller.web.dto.StatusResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +74,26 @@ public class ModellerExecutor implements ContiniusActionExecutor {
         return modelState;
     }
 
+    @Override
+    public StatusResult updateModel(String modelId, SettingsUpdate settingsUpdate) {
+        ModelState modelState = modelRepositoryProvider.getModelState(modelId);
+        modelState.getTrafficLights().forEach(trafficLight -> {
+            trafficLight.setRedDelay(settingsUpdate.getRedDelay());
+            trafficLight.setGreenDelay(settingsUpdate.getGreenDelay());
+        });
+
+        modelState.setIsTrafficLightsFlex(settingsUpdate.getIsAdaptive());
+        if (!settingsUpdate.getIsAdaptive()) {
+            TrafficLight def = modelState.getTrafficLights().get(0);
+            double duration = def.getCurrentDuration();
+            modelState.getTrafficLights().forEach(trafficLight -> {
+                trafficLight.setFlexibilityFactor(NumberUtils.DOUBLE_ZERO);
+                trafficLight.setCurrentDuration(duration);
+            });
+        }
+        modelRepositoryProvider.saveToDatabase(modelState);
+        return StatusResult.ok();
+    }
 
 
 }

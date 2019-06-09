@@ -45,6 +45,10 @@
             <label>
                 Стандартный сценарий
                 <input type="checkbox" v-model="modelSettings.isNotInitialized"/>
+            </label>
+            <label>
+                Адаптивный светофор
+                <input type="checkbox" v-model="modelSettings.isFlex"/>
                 <button @click="init">Принять</button>
             </label>
             <div v-show="!modelSettings.isNotInitialized">
@@ -90,6 +94,41 @@
                        v-model="modelSettings.maxDuration"/>
                 <input class="settings-input" placeholder="Изменение времени" v-model="modelSettings.timeDelta"/>
             </div>
+            <div class="manipulation" v-show="modelSettings.isNotInitialized">
+                Плотность потока
+                <label>
+                    Дорога 1
+                    <input type="number" v-model="modelSettings.trafficGenerate.road1"/>
+                </label>
+                <label>
+                    Дорога 2
+                    <input type="number" v-model="modelSettings.trafficGenerate.road2"/>
+                </label>
+                <label>
+                    Дорога 3
+                    <input type="number" v-model="modelSettings.trafficGenerate.road3"/>
+                </label>
+                <label>
+                    Дорога 4
+                    <input type="number" v-model="modelSettings.trafficGenerate.road4"/>
+                </label>
+                <label>
+                    Дорога 5
+                    <input type="number" v-model="modelSettings.trafficGenerate.road5"/>
+                </label>
+                <label>
+                    Дорога 6
+                    <input type="number" v-model="modelSettings.trafficGenerate.road6"/>
+                </label>
+                <label>
+                    Дорога 7
+                    <input type="number" v-model="modelSettings.trafficGenerate.road7"/>
+                </label>
+                <label>
+                    Дорога 8
+                    <input type="number" v-model="modelSettings.trafficGenerate.road8"/>
+                </label>
+            </div>
         </div>
         <div v-if="shortStatistic">
             {{`Среднее количество автомобилей, стоящих на светофоре: ${shortStatistic.averageWaitingCars}`}}
@@ -97,11 +136,15 @@
         <div v-if="active">
             <label>
                 Длительность красного светофора
-                <input v-model="redDelay"/>
+                <input v-model="settingsUpdate.redDelay"/>
             </label>
             <label>
                 Длительность зеленого светофора
-                <input v-model="greenDelay"/>
+                <input v-model="settingsUpdate.greenDelay"/>
+            </label>
+            <label>
+                Адаптивный светофор
+                <input type="checkbox" v-model="settingsUpdate.isAdaptive"/>
             </label>
             <button @click="changeLights">Применить</button>
         </div>
@@ -127,8 +170,6 @@
                 active: false,
                 settingsPanel: false,
                 modelList: false,
-                redDelay: 0,
-                greenDelay: 0,
                 unfinishedModels: [],
                 statsChart: null,
                 options: {
@@ -158,15 +199,30 @@
                 id: "",
                 stats: "",
                 settingsString: '',
+                settingsUpdate: {
+                    redDelay: 300,
+                    greenDelay: 300,
+                    isAdaptive: false,
+                },
                 modelSettings: {
                     drivers: [],
                     network: [{coordinates: [{}, {}]}],
                     trafficLights: [],
+                    trafficGenerate: {
+                        road1: 7,
+                        road2: 7,
+                        road3: 7,
+                        road4: 7,
+                        road5: 7,
+                        road6: 7,
+                        road7: 7,
+                        road8: 7,
+                    },
                     attributes: [],
                     maxDuration: 0,
                     timeDelta: 0,
-                    isNotInitialized: false,
-                    isFlex: true,
+                    isNotInitialized: true,
+                    isFlex: false,
                 },
                 shortStatistic: null,
                 cars: 0,
@@ -233,7 +289,7 @@
             },
             changeLights: function() {
                 this.model();
-                this.$http.get(`/api/v1/models/lights/${this.id}?redDelay=${this.redDelay}&greenDelay=${this.greenDelay}`)
+                this.$http.put(`/api/v1/models/${this.id}/update`, this.settingsUpdate)
                     .then(() => this.model() )
             },
             execute: function (modelId) {
@@ -276,6 +332,7 @@
                     this.active = false;
                 }
                 this.settingsPanel = false;
+                this.settingsUpdate.isAdaptive = this.modelSettings.isFlex;
                 this.$http.post("/api/v1/models/init", this.modelSettings)
                     .then(res => {
                         this.id = res.body.id
