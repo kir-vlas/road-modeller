@@ -1,6 +1,8 @@
 package com.drakezzz.roadmodeller.persistence.entity;
 
 import com.drakezzz.roadmodeller.model.entity.Attribute;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.geo.Point;
 import org.springframework.util.Assert;
@@ -13,23 +15,32 @@ import static com.drakezzz.roadmodeller.utils.VectorUtils.*;
 @Data
 public class Driver {
 
+    @JsonIgnore
     private String id;
 
+    @JsonIgnore
     private Car car;
 
+    @JsonProperty("crd")
     private Point currentCoordinates;
 
+    @JsonIgnore
     private Point originCoordinates;
 
+    @JsonIgnore
     private Point destinationCoordinates;
 
+    @JsonIgnore
     private List<Attribute> attributeList;
 
+    @JsonIgnore
     private RoadLane currentRoad;
 
-    private boolean isFinished;
+    @JsonIgnore
+    private Boolean isFinished = false;
 
-    private boolean isWaitingGreenLight;
+    @JsonIgnore
+    private Boolean isWaitingGreenLight = false;
 
     @SuppressWarnings("unchecked")
     public <T> T getAttributeValue(Attribute attribute) {
@@ -67,7 +78,7 @@ public class Driver {
                 Point speedVector1 = getDestinationVector(driver1);
                 Point speedVector2 = getDestinationVector(driver2);
                 if (speedVector1.equals(speedVector2) && distance(driver1.getCurrentCoordinates(), driver2.getCurrentCoordinates()) < 10) {
-                    driver1.setFinished(true);
+                    driver1.setIsFinished(true);
                 }
             });
         }

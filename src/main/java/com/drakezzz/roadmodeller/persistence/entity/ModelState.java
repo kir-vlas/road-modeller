@@ -8,8 +8,10 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +47,13 @@ public class ModelState {
 
     private Boolean isCompleted;
 
+    private Boolean isTrafficLightsFlex;
+
+    private Boolean isDynamicTrafficFactor;
+
     private Boolean isFailed;
+
+    private BigInteger overallCars = BigInteger.ZERO;
 
     public static ModelState of(ModelSettings settings) {
         ModelState modelState = new ModelState();
@@ -55,6 +63,7 @@ public class ModelState {
         modelState.setMaxDuration(settings.getMaxDuration());
         modelState.setTimeDelta(settings.getTimeDelta());
         modelState.setAttributes(settings.getAttributes());
+        modelState.setIsTrafficLightsFlex(Optional.ofNullable(settings.getIsFlex()).orElse(false));
         return modelState;
     }
 

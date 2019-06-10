@@ -18,4 +18,10 @@ public class MainController {
     public String register() {
         return "register";
     }
+
+    @ApiOperation("Форма входа в приложение")
+    @GetMapping("login")
+    public String login() {
+        return "login";
+    }
 }

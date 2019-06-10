@@ -25,4 +25,10 @@ public class ModelSettings {
 
     private Boolean isNotInitialized;
 
+    private Boolean isFlex;
+
+    private Boolean isDynamicFactor;
+
+    private QuartTrafficGenerate trafficGenerate;
+
 }

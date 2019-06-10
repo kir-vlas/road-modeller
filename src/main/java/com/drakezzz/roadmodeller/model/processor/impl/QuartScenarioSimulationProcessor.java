@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
 
     private static final Point SAFE_POINT_POSITIVE = new Point(1000, 1000);
     private static final Point SAFE_POINT_NEGATIVE = new Point(-1000, -1000);
+    private static final double MIN_AVG_WAITING_CARS_TRIGGER = 3;
 
     private final TrafficGenerator trafficGenerator;
 
@@ -46,19 +48,27 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 } else {
                     speedVector = calculateSpeed(driver, Car.getCurrentSpeed(driver.getCar(), true));
                 }
+                if (speedVector.equals(ZERO)) {
+                    driver.setIsWaitingGreenLight(true);
+                } else {
+                    driver.setIsWaitingGreenLight(false);
+                }
                 Point currentCoord = driver.getCurrentCoordinates();
                 driver.setCurrentCoordinates(add(currentCoord, speedVector));
 
                 if (Driver.isFinished(driver)) {
-                    driver.setFinished(true);
+                    driver.setIsFinished(true);
                 }
             });
+            if (modelState.getIsTrafficLightsFlex()) {
+                adaptLights(trafficLights);
+            }
             trafficLights.forEach(TrafficLight::changeLight);
             checkCollisions(drivers);
             cleanCars(drivers);
             modelState.setDrivers(drivers.stream()
                     .filter(driver ->
-                            !driver.isFinished())
+                            !driver.getIsFinished())
                     .collect(Collectors.toSet()));
         } else {
             log.debug("Finished simulation [{}]", modelState.getUuid());
@@ -72,19 +82,42 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
         checkCollisions(modelState.getDrivers());
         modelState.setDrivers(modelState.getDrivers().stream()
                 .filter(driver ->
-                        !driver.isFinished())
+                        !driver.getIsFinished())
                 .collect(Collectors.toSet()));
+    }
+
+    private void adaptLights(List<TrafficLight> trafficLights) {
+        List<List<TrafficLight>> intersections = new LinkedList<>();
+        for (TrafficLight trafficLight : trafficLights) {
+            intersections.add(trafficLights.stream()
+                    .filter(light ->
+                            distance(light.getCoordinates(), trafficLight.getCoordinates()) < 20)
+                    .collect(Collectors.toList()));
+        }
+        intersections.forEach(intersection -> {
+            double avgWaitingCars = intersection.stream()
+                    .mapToInt(trafficLight ->
+                            trafficLight.getWaitingCars().size())
+                    .filter(cnt -> cnt != 0)
+                    .sum();
+            if (avgWaitingCars < MIN_AVG_WAITING_CARS_TRIGGER) {
+                return;
+            }
+            intersection.forEach(trafficLight ->
+                    trafficLight.determineFlexibility(avgWaitingCars - MIN_AVG_WAITING_CARS_TRIGGER));
+        });
     }
 
     private boolean isDriverBrakes(Set<Driver> drivers, Driver currentDriver, Point speedVector) {
         List<Driver> driversInSameRoad;
         if (speedVector.equals(ZERO)) {
-            currentDriver.setWaitingGreenLight(true);
+            currentDriver.setIsWaitingGreenLight(true);
             return true;
         }
         driversInSameRoad = drivers.stream()
                 .filter(driver ->
-                        driver.getDestinationCoordinates().equals(currentDriver.getDestinationCoordinates()))
+                        !currentDriver.equals(driver) &&
+                                driver.getDestinationCoordinates().equals(currentDriver.getDestinationCoordinates()))
                 .collect(Collectors.toList());
         if (driversInSameRoad.isEmpty()) {
             return false;
@@ -93,14 +126,15 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                 compareCoordinates(driver1.getCurrentCoordinates(), driver2.getCurrentCoordinates()));
         if (!speedVector.equals(ZERO)) {
             for (Driver driver : driversInSameRoad) {
-                if (!currentDriver.equals(driver) && distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 25 && isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector)) {
-                    currentDriver.setWaitingGreenLight(true);
+                if (distance(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates()) < 25 &&
+                        isBehind(currentDriver.getCurrentCoordinates(), driver.getCurrentCoordinates(), speedVector)) {
+                    currentDriver.setIsWaitingGreenLight(true);
                     return true;
                 }
             }
         }
 
-        currentDriver.setWaitingGreenLight(false);
+        currentDriver.setIsWaitingGreenLight(false);
         return false;
     }
 
@@ -122,6 +156,7 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
                     !isBehind(driver.getCurrentCoordinates(), trafficLight.getCoordinates(), speedVector)) {
                 continue;
             }
+            trafficLight.getWaitingCars().add(driver.getId());
             if (LightStatus.RED.equals(trafficLight.getStatus())) {
                 return new Point(0, speedVector.getY());
             }
@@ -139,16 +174,16 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
         drivers.forEach(driver -> {
             Point currCoord = driver.getCurrentCoordinates();
             if (isXLarger(currCoord, SAFE_POINT_POSITIVE)) {
-                driver.setFinished(true);
+                driver.setIsFinished(true);
             }
             if (isYLarger(currCoord, SAFE_POINT_POSITIVE)) {
-                driver.setFinished(true);
+                driver.setIsFinished(true);
             }
             if (isXLower(currCoord, SAFE_POINT_NEGATIVE)) {
-                driver.setFinished(true);
+                driver.setIsFinished(true);
             }
             if (isYLower(currCoord, SAFE_POINT_NEGATIVE)) {
-                driver.setFinished(true);
+                driver.setIsFinished(true);
             }
         });
     }
