@@ -16,7 +16,7 @@
             </md-field>
             <md-field>
                 <label>Подтверждение пароля:</label>
-                <md-input type="password" v-model="user.passwordConfirmation" required></md-input>
+                <md-input type="password" v-model="passwordConfirmation" required></md-input>
                 <span class="md-helper-text">Введите пароль еще раз</span>
                 <span class="md-error">Пароль отсутствует</span>
             </md-field>
@@ -70,6 +70,8 @@
             register: function () {
                 if (!this.user.password || this.user.password !== this.passwordConfirmation) {
                     this.passwordConfirmError = true;
+                    console.log(this.user.password);
+                    console.log(this.passwordConfirmation);
                     return;
                 }
                 this.$http.post("/api/v1/registration", this.user)
