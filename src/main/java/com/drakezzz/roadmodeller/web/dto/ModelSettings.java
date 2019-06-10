@@ -27,6 +27,8 @@ public class ModelSettings {
 
     private Boolean isFlex;
 
+    private Boolean isDynamicFactor;
+
     private QuartTrafficGenerate trafficGenerate;
 
 }

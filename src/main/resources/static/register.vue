@@ -85,11 +85,21 @@
 </script>
 
 <style>
+    .office-page{
+        background-image: url("background.jpg");
+        background-size: cover;
+    }
+
     .reg-form {
+        padding: 25px;
+        border: 1px solid #f3f3f3;
+        border-radius: 25px;
+        box-shadow: 20px 15px 10px 5px rgba(0, 0, 0, .2);
+        background-color: #f3f3f3;
         display: flex;
         font-family: Arial;
         flex-direction: column;
-        width: 400px;
+        width: 450px;
         justify-content: space-between;
         position: fixed;
         top: 50%;

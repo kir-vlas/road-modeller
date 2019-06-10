@@ -15,7 +15,8 @@
                     <md-button class="md-raised init-button" @click="settingsPanel = !settingsPanel">
                         {{!this.settingsPanel ? 'Создать модель' : 'Закрыть'}}
                     </md-button>
-                    <md-button :disabled="active" class="md-raised btn" @click="loadModels">Показать сохраненные</md-button>
+                    <md-button :disabled="active" class="md-raised btn" @click="loadModels">Показать сохраненные
+                    </md-button>
                     <md-button class="md-raised md-accent model-button" v-if="id" @click="model">
                         {{!this.active ? "Начать моделирование": "Приостановить"}}
                     </md-button>
@@ -25,9 +26,14 @@
                         <div class="model-continue" v-for="modelId of unfinishedModels">
                             Идентификатор модели: {{modelId.id}}
                             <div>
-                                <md-button class="md-raised md-accent" @click="execute(modelId.id)">Продолжить</md-button>
-                                <md-button class="md-raised md-primary" @click="deleteModel(modelId.id)">Удалить</md-button>
+                                <md-button class="md-raised md-accent" @click="execute(modelId.id)">Продолжить
+                                </md-button>
+                                <md-button class="md-raised md-primary" @click="deleteModel(modelId.id)">Удалить
+                                </md-button>
                             </div>
+                        </div>
+                        <div v-if="!unfinishedModels.length">
+                            Отсутствуют сохраненные модели
                         </div>
                     </div>
                 </div>
@@ -73,10 +79,17 @@
                                         <md-input placeholder="Скоростной лимит"
                                                   v-model="roadLane.maxSpeedLimit"></md-input>
                                     </md-field>
-                                    <md-field>
-                                        <md-input placeholder="Частота движения"
-                                                  v-model="roadLane.trafficGeneratorFactor"></md-input>
-                                    </md-field>
+                                    <div>
+                                        <label>Плотность движения {{roadLane.trafficGeneratorFactor}}</label>
+                                        <div class="traffic-slider">
+                                            <input type="range"
+                                                   class="slider"
+                                                   name="freq"
+                                                   min="5"
+                                                   max="20"
+                                                   v-model="roadLane.trafficGeneratorFactor"/>
+                                        </div>
+                                    </div>
                                     <div v-for="coord of roadLane.coordinates">
                                         <md-field>
                                             <label>Координата X</label>
@@ -132,45 +145,106 @@
                         </div>
                     </div>
                     <div class="factor-form" v-show="modelSettings.isNotInitialized">
-                        Плотность потока
-                        <md-field>
-                            <label>Дорога 1</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road1"></md-input>
-                        </md-field>
-                        <md-field>
-                            <label>Дорога 2</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road2"></md-input>
-                        </md-field>
-                        <md-field>
-                            <label>Дорога 3</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road3"></md-input>
-                        </md-field>
-                        <md-field>
-                            <label>Дорога 4</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road4"></md-input>
-                        </md-field>
-                        <md-field>
-                            <label>Дорога 5</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road5"></md-input>
-                        </md-field>
-                        <md-field>
-                            <label>Дорога 6</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road6"></md-input>
-                        </md-field>
-                        <md-field>
-                            <label>Дорога 7</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road7"></md-input>
-                        </md-field>
-                        <md-field>
-                            <label>Дорога 8</label>
-                            <md-input type="number" v-model="modelSettings.trafficGenerate.road8"></md-input>
-                        </md-field>
+                        <div v-show="!modelSettings.isDynamicFactor">
+                            Плотность потока
+                            <div>
+                                <label>Дорога 1 {{modelSettings.trafficGenerate.road1}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road1"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Дорога 2 {{modelSettings.trafficGenerate.road2}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road2"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Дорога 3 {{modelSettings.trafficGenerate.road3}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road3"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Дорога 4 {{modelSettings.trafficGenerate.road4}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road4"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Дорога 5 {{modelSettings.trafficGenerate.road5}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road5"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Дорога 6 {{modelSettings.trafficGenerate.road6}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road6"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Дорога 7 {{modelSettings.trafficGenerate.road7}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road7"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Дорога 8 {{modelSettings.trafficGenerate.road8}}</label>
+                                <div class="traffic-slider">
+                                    <input type="range"
+                                           class="slider"
+                                           name="freq"
+                                           min="5"
+                                           max="20"
+                                           v-model="modelSettings.trafficGenerate.road8"/>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <label>
                         <md-checkbox v-model="modelSettings.isNotInitialized">Стандартный сценарий</md-checkbox>
                     </label>
                     <label>
                         <md-checkbox v-model="modelSettings.isFlex">Адаптивный светофор</md-checkbox>
+                    </label>
+                    <label>
+                        <md-checkbox v-model="modelSettings.isDynamicFactor">Диначеское изменение трафика</md-checkbox>
                     </label>
                 </div>
                 <md-field v-if="settingsString">
@@ -196,7 +270,7 @@
                 <md-input :disabled="!active" v-model="settingsUpdate.greenDelay"></md-input>
             </md-field>
             <md-switch :disabled="!active" v-model="settingsUpdate.isAdaptive">
-                {{ !settingsUpdate.isAdaptive ? 'Включить' : 'Отключить' }} адаптивный светофор
+                {{ !settingsUpdate.isAdaptive ? 'Включить' : 'Отключить' }} адаптивный режим светофоров
             </md-switch>
 
             <md-button class="md-raised md-accent" @click="changeLights">Применить</md-button>
@@ -276,6 +350,7 @@
                     timeDelta: 0,
                     isNotInitialized: true,
                     isFlex: false,
+                    isDynamicFactor: false,
                 },
                 shortStatistic: null,
                 cars: 0,
@@ -365,6 +440,7 @@
                 this.$http.get("/api/v1/models")
                     .then(res => {
                         this.unfinishedModels = res.body;
+                        console.log(this.unfinishedModels)
                     });
             },
             getStats: function () {
@@ -455,6 +531,9 @@
                 }
                 clearInterval(this.modelIntervalNumber);
                 this.modelIntervalNumber = setInterval(() => this.$socket.send(this.id), 1000 / this.freq);
+            },
+            changeFactor: function () {
+
             }
         }
     }
@@ -485,7 +564,7 @@
         justify-content: center;
     }
 
-    .header{
+    .header {
         display: flex;
         justify-content: space-between;
     }
@@ -544,6 +623,10 @@
         width: 500px;
     }
 
+    .traffic-slider {
+        width: 250px;
+    }
+
     .slider {
         -webkit-appearance: none;
         width: 100%;
@@ -587,6 +670,7 @@
         display: flex;
         flex-direction: column;
         width: 300px;
+        padding: 5px;
     }
 
     .btn {
