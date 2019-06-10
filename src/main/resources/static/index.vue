@@ -251,7 +251,7 @@
                     <md-textarea md-autogrow v-model="settingsString"></md-textarea>
                 </md-field>
                 <div>
-                    <md-button class="md-raised" @click="showSettings">Экспорт настроек</md-button>
+                    <md-button class="md-raised" :disabled="modelSettings.isNotInitialized" @click="showSettings">Экспорт настроек</md-button>
                     <md-button class="md-raised md-accent" @click="init">Принять</md-button>
                 </div>
 
