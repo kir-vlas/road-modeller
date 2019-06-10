@@ -149,7 +149,7 @@
                         <div v-show="!modelSettings.isDynamicFactor">
                             Плотность потока
                             <div>
-                                <label>Дорога 1 {{modelSettings.trafficGenerate.road1}}</label>
+                                <label>Дорога 1: {{modelSettings.trafficGenerate.road1}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
@@ -160,7 +160,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Дорога 2 {{modelSettings.trafficGenerate.road2}}</label>
+                                <label>Дорога 2: {{modelSettings.trafficGenerate.road2}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
@@ -171,7 +171,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Дорога 3 {{modelSettings.trafficGenerate.road3}}</label>
+                                <label>Дорога 3: {{modelSettings.trafficGenerate.road3}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
@@ -182,7 +182,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Дорога 4 {{modelSettings.trafficGenerate.road4}}</label>
+                                <label>Дорога 4: {{modelSettings.trafficGenerate.road4}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
@@ -193,7 +193,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Дорога 5 {{modelSettings.trafficGenerate.road5}}</label>
+                                <label>Дорога 5: {{modelSettings.trafficGenerate.road5}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
@@ -204,7 +204,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Дорога 6 {{modelSettings.trafficGenerate.road6}}</label>
+                                <label>Дорога 6: {{modelSettings.trafficGenerate.road6}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
@@ -215,7 +215,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Дорога 7 {{modelSettings.trafficGenerate.road7}}</label>
+                                <label>Дорога 7: {{modelSettings.trafficGenerate.road7}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
@@ -226,7 +226,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Дорога 8 {{modelSettings.trafficGenerate.road8}}</label>
+                                <label>Дорога 8: {{modelSettings.trafficGenerate.road8}}</label>
                                 <div class="traffic-slider">
                                     <input type="range"
                                            class="slider"
