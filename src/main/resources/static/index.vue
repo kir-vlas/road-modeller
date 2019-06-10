@@ -1,154 +1,199 @@
 <template>
     <div class="container">
-        <h2>Моделирование движения транспорта</h2>
-        <div class="manipulation">
-            <button class="init-button" @click="settingsPanel = !settingsPanel">Создать модель</button>
-            <button class="model-button" v-if="id" @click="model">
-                {{!this.active ? "Запустить моделирование": "Остановить моделирование"}}
-            </button>
-            <div class="inputs">
-                <label>
-                    Идентификатор модели
-                    <input name="model-id" class="model-id" v-model="id"/>
-                </label>
-                <label>
-                    Частота:
-                    {{freq}}
-                    <div class="slider-container">
-                        <input type="range"
-                               class="slider"
-                               name="freq"
-                               min="1"
-                               max="100"
-                               v-on:click="changeSpeed"
-                               v-model="freq"/>
-                    </div>
-                </label>
-            </div>
-            <span v-if="cars">Количество машин на дороге: {{this.cars}}</span>
-            <span v-if="time">Прогресс: {{this.time}} / {{this.maxDuration}}</span>
-        </div>
-        <hr>
-        <div v-if="!active" class="models-panel">
-            <button class="btn" @click="loadModels">Показать незавершенные</button>
-            <div v-if="modelList" class="models-list">
-                <div class="model-continue" v-for="modelId of unfinishedModels">
-                    Идентификатор модели: {{modelId.id}}}
-                    <div>
-                        <button @click="execute(modelId.id)">Продолжить</button>
-                        <button @click="deleteModel(modelId.id)">Удалить</button>
-                    </div>
+        <div class="main-panel">
+            <h2>Моделирование движения транспорта</h2>
+            <div class="manipulation">
+                <div>
+                    <md-button class="md-raised init-button" @click="settingsPanel = !settingsPanel">
+                        {{!this.settingsPanel ? 'Создать модель' : 'Закрыть'}}
+                    </md-button>
+                    <md-button :disabled="active" class="md-raised btn" @click="loadModels">Показать сохраненные</md-button>
+                    <md-button class="md-raised md-accent model-button" v-if="id" @click="model">
+                        {{!this.active ? "Начать моделирование": "Приостановить"}}
+                    </md-button>
                 </div>
-            </div>
-        </div>
-        <div v-if="settingsPanel" class="model-settings">
-            <label>
-                Стандартный сценарий
-                <input type="checkbox" v-model="modelSettings.isNotInitialized"/>
-            </label>
-            <label>
-                Адаптивный светофор
-                <input type="checkbox" v-model="modelSettings.isFlex"/>
-                <button @click="init">Принять</button>
-            </label>
-            <div v-show="!modelSettings.isNotInitialized">
-                <button @click="showSettings">Экспорт настроек</button>
-                <textarea class="model-init-settings" v-if="settingsString" v-model="settingsString"></textarea>
-                <h4>Дороги</h4>
-                <div class="roads-list">
-                    <div class="road-lane-panel" v-for="roadLane of modelSettings.network">
-                        <input type="text" placeholder="Длина" v-model="roadLane.length"/>
-                        <label>
-                            Горизонтальная
-                            <input type="checkbox" v-model="roadLane.horizontal"/>
-                        </label>
-                        <input type="text" placeholder="Скоростной лимит" v-model="roadLane.maxSpeedLimit"/>
-                        <input type="text" placeholder="Частота движения" v-model="roadLane.trafficGeneratorFactor"/>
-                        <div v-for="coord of roadLane.coordinates">
-                            <label>
-                                Координата X
-                                <input placeholder="Координата X" v-model="coord.x"/>
-                            </label>
-                            <label>
-                                Координата Y
-                                <input placeholder="Координата Y" v-model="coord.y"/>
-                            </label>
+                <div class="models-panel">
+                    <div v-if="modelList" class="models-list">
+                        <div class="model-continue" v-for="modelId of unfinishedModels">
+                            Идентификатор модели: {{modelId.id}}
+                            <div>
+                                <md-button class="md-raised md-accent" @click="execute(modelId.id)">Продолжить</md-button>
+                                <md-button class="md-raised md-primary" @click="deleteModel(modelId.id)">Удалить</md-button>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <button class="btn" v-on:click="addRoad">Добавить дорогу</button>
-                <h4>Светофоры</h4>
-                <div class="roads-list">
-                    <div class="road-lane-panel" v-for="trafficLight of modelSettings.trafficLights">
-                        <input placeholder="Начальный статус" v-model="trafficLight.status"/>
-                        <input placeholder="Длительность красного сигнала" v-model="trafficLight.redDelay"/>
-                        <input placeholder="Длительность зеленого сигнала" v-model="trafficLight.greenDelay"/>
-                        <input placeholder="Координата X" v-model="trafficLight.coordinates.x"/>
-                        <input placeholder="Координата Y" v-model="trafficLight.coordinates.y"/>
+                <div class="inputs">
+                    <md-field>
+                        <label> Идентификатор модели </label>
+                        <md-input name="model-id" class="model-id" v-model="id"></md-input>
+                    </md-field>
+                </div>
+                <div class="inputs">
+                    <label>
+                        Частота:
+                        {{freq}}
+                        <div class="slider-container">
+                            <input type="range"
+                                   class="slider"
+                                   name="freq"
+                                   min="1"
+                                   max="100"
+                                   v-on:click="changeSpeed"
+                                   v-model="freq"/>
+                        </div>
+                    </label>
+                </div>
+                <span v-if="cars">Количество машин на дороге: {{this.cars}}</span>
+                <span v-if="time">Прогресс: {{this.time}} / {{this.maxDuration}}</span>
+            </div>
+            <hr>
+            <div v-if="settingsPanel" class="model-settings">
+                <div v-if="!settingsString">
+                    <div class="model-settings-wrap" v-show="!modelSettings.isNotInitialized">
+                        <div>
+                            <h4>Дороги</h4>
+                            <div class="roads-list">
+                                <div class="road-lane-panel" v-for="roadLane of modelSettings.network">
+                                    <md-field>
+                                        <md-input placeholder="Длина" v-model="roadLane.length"></md-input>
+                                    </md-field>
+                                    <label>
+                                        <md-checkbox v-model="roadLane.horizontal">Горизонтальная</md-checkbox>
+                                    </label>
+                                    <md-field>
+                                        <md-input placeholder="Скоростной лимит"
+                                                  v-model="roadLane.maxSpeedLimit"></md-input>
+                                    </md-field>
+                                    <md-field>
+                                        <md-input placeholder="Частота движения"
+                                                  v-model="roadLane.trafficGeneratorFactor"></md-input>
+                                    </md-field>
+                                    <div v-for="coord of roadLane.coordinates">
+                                        <md-field>
+                                            <label>Координата X</label>
+                                            <md-input placeholder="Координата X" v-model="coord.x"></md-input>
+                                        </md-field>
+                                        <md-field>
+                                            <label>Координата Y</label>
+                                            <md-input placeholder="Координата Y" v-model="coord.y"></md-input>
+                                        </md-field>
+                                    </div>
+                                </div>
+                            </div>
+                            <md-button class="md-raised btn" v-on:click="addRoad">Добавить дорогу</md-button>
+                        </div>
+                        <div>
+                            <h4>Светофоры</h4>
+                            <div class="roads-list">
+                                <div class="road-lane-panel" v-for="trafficLight of modelSettings.trafficLights">
+                                    <md-field>
+                                        <md-input placeholder="Начальный статус"
+                                                  v-model="trafficLight.status"></md-input>
+                                    </md-field>
+                                    <md-field>
+                                        <md-input placeholder="Длительность красного сигнала"
+                                                  v-model="trafficLight.redDelay"></md-input>
+                                    </md-field>
+                                    <md-field>
+                                        <md-input placeholder="Длительность зеленого сигнала"
+                                                  v-model="trafficLight.greenDelay"></md-input>
+                                    </md-field>
+                                    <md-field>
+                                        <md-input placeholder="Координата X"
+                                                  v-model="trafficLight.coordinates.x"></md-input>
+                                    </md-field>
+                                    <md-field>
+                                        <md-input placeholder="Координата Y"
+                                                  v-model="trafficLight.coordinates.y"></md-input>
+                                    </md-field>
+                                </div>
+                            </div>
+                            <md-button class="md-raised btn" v-on:click="addLight">Добавить светофор</md-button>
+                        </div>
+                        <div>
+                            <h4>Длительность моделирования</h4>
+                            <md-field>
+                                <label>Продолжительность</label>
+                                <md-input class="settings-input" v-model="modelSettings.maxDuration"></md-input>
+                            </md-field>
+                            <md-field>
+                                <label>Изменение времени</label>
+                                <md-input class="settings-input" v-model="modelSettings.timeDelta"></md-input>
+                            </md-field>
+                        </div>
                     </div>
-                </div>25
-                <button class="btn" v-on:click="addLight">Добавить светофор</button>
-                <h4>Длительность моделирования</h4>
-                <input class="settings-input" placeholder="Максимальная продолжительность"
-                       v-model="modelSettings.maxDuration"/>
-                <input class="settings-input" placeholder="Изменение времени" v-model="modelSettings.timeDelta"/>
+                    <div class="factor-form" v-show="modelSettings.isNotInitialized">
+                        Плотность потока
+                        <md-field>
+                            <label>Дорога 1</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road1"></md-input>
+                        </md-field>
+                        <md-field>
+                            <label>Дорога 2</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road2"></md-input>
+                        </md-field>
+                        <md-field>
+                            <label>Дорога 3</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road3"></md-input>
+                        </md-field>
+                        <md-field>
+                            <label>Дорога 4</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road4"></md-input>
+                        </md-field>
+                        <md-field>
+                            <label>Дорога 5</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road5"></md-input>
+                        </md-field>
+                        <md-field>
+                            <label>Дорога 6</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road6"></md-input>
+                        </md-field>
+                        <md-field>
+                            <label>Дорога 7</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road7"></md-input>
+                        </md-field>
+                        <md-field>
+                            <label>Дорога 8</label>
+                            <md-input type="number" v-model="modelSettings.trafficGenerate.road8"></md-input>
+                        </md-field>
+                    </div>
+                    <label>
+                        <md-checkbox v-model="modelSettings.isNotInitialized">Стандартный сценарий</md-checkbox>
+                    </label>
+                    <label>
+                        <md-checkbox v-model="modelSettings.isFlex">Адаптивный светофор</md-checkbox>
+                    </label>
+                </div>
+                <md-field v-if="settingsString">
+                    <md-textarea md-autogrow v-model="settingsString"></md-textarea>
+                </md-field>
+                <div>
+                    <md-button class="md-raised" @click="showSettings">Экспорт настроек</md-button>
+                    <md-button class="md-raised md-accent" @click="init">Принять</md-button>
+                </div>
+
             </div>
-            <div class="manipulation" v-show="modelSettings.isNotInitialized">
-                Плотность потока
-                <label>
-                    Дорога 1
-                    <input type="number" v-model="modelSettings.trafficGenerate.road1"/>
-                </label>
-                <label>
-                    Дорога 2
-                    <input type="number" v-model="modelSettings.trafficGenerate.road2"/>
-                </label>
-                <label>
-                    Дорога 3
-                    <input type="number" v-model="modelSettings.trafficGenerate.road3"/>
-                </label>
-                <label>
-                    Дорога 4
-                    <input type="number" v-model="modelSettings.trafficGenerate.road4"/>
-                </label>
-                <label>
-                    Дорога 5
-                    <input type="number" v-model="modelSettings.trafficGenerate.road5"/>
-                </label>
-                <label>
-                    Дорога 6
-                    <input type="number" v-model="modelSettings.trafficGenerate.road6"/>
-                </label>
-                <label>
-                    Дорога 7
-                    <input type="number" v-model="modelSettings.trafficGenerate.road7"/>
-                </label>
-                <label>
-                    Дорога 8
-                    <input type="number" v-model="modelSettings.trafficGenerate.road8"/>
-                </label>
+            <div v-if="shortStatistic">
+                {{`Среднее количество автомобилей, стоящих на светофоре: ${shortStatistic.averageWaitingCars}`}}
             </div>
         </div>
-        <div v-if="shortStatistic">
-            {{`Среднее количество автомобилей, стоящих на светофоре: ${shortStatistic.averageWaitingCars}`}}
+        <div class="updating" v-show="shortStatistic">
+            <md-field>
+                <label>Длительность красного светофора</label>
+                <md-input :disabled="!active" v-model="settingsUpdate.redDelay"></md-input>
+            </md-field>
+            <md-field>
+                <label>Длительность зеленого светофора</label>
+                <md-input :disabled="!active" v-model="settingsUpdate.greenDelay"></md-input>
+            </md-field>
+            <md-switch :disabled="!active" v-model="settingsUpdate.isAdaptive">
+                {{ !settingsUpdate.isAdaptive ? 'Включить' : 'Отключить' }} адаптивный светофор
+            </md-switch>
+
+            <md-button class="md-raised md-accent" @click="changeLights">Применить</md-button>
         </div>
-        <div v-if="active">
-            <label>
-                Длительность красного светофора
-                <input v-model="settingsUpdate.redDelay"/>
-            </label>
-            <label>
-                Длительность зеленого светофора
-                <input v-model="settingsUpdate.greenDelay"/>
-            </label>
-            <label>
-                Адаптивный светофор
-                <input type="checkbox" v-model="settingsUpdate.isAdaptive"/>
-            </label>
-            <button @click="changeLights">Применить</button>
-        </div>
-        <div class="main-model">
+        <div class="main-model" v-show="shortStatistic">
             <div class="render">
                 <canvas ref="model-container"></canvas>
             </div>
@@ -176,16 +221,16 @@
                     responsive: true,
                     animation: false,
                     scales: {
-                        yAxes : [{
-                            ticks : {
-                                max : 10,
-                                min : 0
+                        yAxes: [{
+                            ticks: {
+                                max: 10,
+                                min: 0
                             }
                         }],
-                        xAxes : [{
-                            ticks : {
-                                max : 30,
-                                min : 30
+                        xAxes: [{
+                            ticks: {
+                                max: 30,
+                                min: 30
                             }
                         }]
                     }
@@ -273,7 +318,7 @@
                     this.statsIntervalNumber = setInterval(() => this.getShortStatistic(), 1000);
                 }
             },
-            renderChart: function() {
+            renderChart: function () {
                 const dataset = this.shortStatistic.averageWaitingTime.slice(-30);
                 this.statsChart = {
                     labels: new Array(30),
@@ -287,17 +332,17 @@
                     ]
                 }
             },
-            changeLights: function() {
+            changeLights: function () {
                 this.model();
                 this.$http.put(`/api/v1/models/${this.id}/update`, this.settingsUpdate)
-                    .then(() => this.model() )
+                    .then(() => this.model())
             },
             execute: function (modelId) {
                 this.id = modelId;
                 this.modelList = false;
                 this.model();
             },
-            getShortStatistic: function() {
+            getShortStatistic: function () {
                 this.$http.get(`/api/v1/models/${this.id}/short`)
                     .then((res) => {
                         this.shortStatistic = res.body;
@@ -344,7 +389,7 @@
             addLight: function () {
                 this.modelSettings.trafficLights.push({coordinates: {}});
             },
-            showSettings: function() {
+            showSettings: function () {
                 if (this.settingsString) {
                     this.modelSettings = JSON.parse(this.settingsString);
                     this.settingsString = '';
@@ -412,11 +457,36 @@
 
     .container {
         display: flex;
+        flex-wrap: wrap;
+        padding-top: 15px;
+        padding-left: 30px;
+    }
+
+    .model-settings-wrap {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .main-panel {
+        width: 1100px;
+        display: flex;
         flex-direction: column;
         justify-content: center;
     }
 
+    .updating {
+        width: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+
     .manipulation {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .factor-form {
+        width: 300px;
         display: flex;
         flex-direction: column;
     }
@@ -427,9 +497,6 @@
 
     .render {
         display: flex;
-        overflow: scroll;
-        min-width: 1000px;
-        min-height: 1000px;
         max-width: 1500px;
         max-height: 2000px;
     }
@@ -454,6 +521,7 @@
 
     .main-model {
         display: flex;
+        width: 1700px;
     }
 
     .slider-container {
@@ -514,15 +582,10 @@
         flex-wrap: wrap;
     }
 
-    .model-init-settings {
-        width: 800px;
-        height: 1000px;
-        overflow: scroll;
-    }
-
     .models-list {
         display: flex;
         flex-direction: column;
+        width: 800px;
     }
 
     .model-continue {
@@ -530,9 +593,4 @@
         justify-content: space-between;
     }
 
-    .models-panel {
-        display: flex;
-        flex-direction: column;
-        width: 800px;
-    }
 </style>

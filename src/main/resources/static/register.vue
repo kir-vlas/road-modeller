@@ -1,36 +1,51 @@
 <template>
-    <div class="container">
-        <div class="reg-form">
-            <label>
-                <span>Логин:</span>
-                <el-input type="text" v-model="user.username"/>
-            </label>
-            <label>
-                <span>Пароль:</span>
-                <el-input type="password" v-model="user.password"/>
-            </label>
-            <label>
-                <span>Подтверждение пароля:</span>
-                <el-input type="password" v-model="passwordConfirmation"/>
-            </label>
-            <label>
-                <span>Имя:</span>
-                <el-input type="text" v-model="user.firstName"/>
-            </label>
-            <label>
-                <span>Фамилия:</span>
-                <el-input type="text" v-model="user.lastName"/>
-            </label>
-            <label>
-                <span>Отчество:</span>
-                <el-input type="text" v-model="user.middleName"/>
-            </label>
+    <div class="reg-form">
+        <h2>Регистрация</h2>
+        <div>
+            <md-field>
+                <label>Логин:</label>
+                <md-input type="text" v-model="user.username" required></md-input>
+                <span class="md-helper-text">Требуется ввести логин</span>
+                <span class="md-error">Логин отсутствует</span>
+            </md-field>
+            <md-field>
+                <label>Пароль:</label>
+                <md-input type="password" v-model="user.password" required></md-input>
+                <span class="md-helper-text">Требуется ввести пароль</span>
+                <span class="md-error">Пароль отсутствует</span>
+            </md-field>
+            <md-field>
+                <label>Подтверждение пароля:</label>
+                <md-input type="password" v-model="user.passwordConfirmation" required></md-input>
+                <span class="md-helper-text">Введите пароль еще раз</span>
+                <span class="md-error">Пароль отсутствует</span>
+            </md-field>
+            <md-field>
+                <label>Имя:</label>
+                <md-input type="text" v-model="user.firstName" required></md-input>
+                <span class="md-helper-text">Необходимо ввести имя</span>
+                <span class="md-error">Имя отсутствует</span>
+            </md-field>
+            <md-field>
+                <label>Фамилия:</label>
+                <md-input type="text" v-model="user.lastName" required></md-input>
+                <span class="md-helper-text">Необходимо ввести фамилию</span>
+                <span class="md-error">Фамилия отсутствует</span>
+            </md-field>
+            <md-field>
+                <label>Отчество:</label>
+                <md-input type="text" v-model="user.middleName" required></md-input>
+                <span class="md-helper-text">Необходимо ввести отчество</span>
+                <span class="md-error">Отчество отсутствует</span>
+            </md-field>
         </div>
         <div class="form-btns">
-            <span class="error-label" v-if="error">Ошибка: пароли не совпадают</span>
-            <button class="reg-btn" v-on:click="register">Регистрация</button>
+            <span class="error-label" v-if="passwordConfirmError">Ошибка: пароли не совпадают</span>
+            <span class="error-label" v-if="error">Обязательные поля не заполнены</span>
+            <md-button class="md-raised reg-btn" v-on:click="register">Регистрация</md-button>
         </div>
     </div>
+
 </template>
 
 <script>
@@ -46,14 +61,15 @@
                     middleName: '',
                 },
                 passwordConfirmation: '',
-                error: false,
+                passwordConfirmError: false,
+                error: false
 
             }
         },
         methods: {
             register: function () {
                 if (!this.user.password || this.user.password !== this.passwordConfirmation) {
-                    this.error = true;
+                    this.passwordConfirmError = true;
                     return;
                 }
                 this.$http.post("/api/v1/registration", this.user)
@@ -75,19 +91,24 @@
         flex-direction: column;
         width: 400px;
         justify-content: space-between;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        /* bring your own prefixes */
+        transform: translate(-60%, -60%);
     }
 
     .reg-btn {
         width: 200px;
     }
 
-    .form-btns{
+    .form-btns {
         display: flex;
         font-family: Arial;
         flex-direction: column;
     }
 
-    .error-label{
+    .error-label {
         color: red;
     }
 </style>

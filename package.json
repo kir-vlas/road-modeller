@@ -1,8 +1,9 @@
 {
   "name": "road_modeller",
   "description": "Diploma project",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Vlasyuk Kirill <kirill-vlasyuk@rambler.ru>",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --hot",
@@ -16,7 +17,6 @@
     "chart.js": "^2.8.0",
     "css-loader": "^0.25.0",
     "decimal.js": "10.0.1",
-    "element-ui": "^2.3.3",
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "^0.9.0",
     "lodash": "^4.17.11",
@@ -27,6 +27,7 @@
     "vue-chartjs": "^3.4.2",
     "vue-loader": "13.3.0",
     "vue-masked-input": "0.5.2",
+    "vue-material": "^1.0.0-beta-11",
     "vue-native-websocket": "^2.0.13",
     "vue-resource": "1.3.4",
     "vue-scrollto": "2.11.0",
