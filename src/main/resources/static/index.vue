@@ -1,7 +1,15 @@
 <template>
     <div class="container">
         <div class="main-panel">
-            <h2>Моделирование движения транспорта</h2>
+            <div class="header">
+                <h2>Моделирование движения транспорта</h2>
+                <div>
+                    <form method="post" action="/logout">
+                        <md-button type="submit">Выход</md-button>
+                    </form>
+
+                </div>
+            </div>
             <div class="manipulation">
                 <div>
                     <md-button class="md-raised init-button" @click="settingsPanel = !settingsPanel">
@@ -337,6 +345,9 @@
                 this.$http.put(`/api/v1/models/${this.id}/update`, this.settingsUpdate)
                     .then(() => this.model())
             },
+            logout: function () {
+                window.location.href = '/logout';
+            },
             execute: function (modelId) {
                 this.id = modelId;
                 this.modelList = false;
@@ -472,6 +483,11 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+    }
+
+    .header{
+        display: flex;
+        justify-content: space-between;
     }
 
     .updating {

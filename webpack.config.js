@@ -15,7 +15,8 @@ module.exports = {
     entry: {
         index: sourcesPath + '/index-module.js',
         register: sourcesPath + '/register-module.js',
-        chart: sourcesPath + '/chart-module.js'
+        chart: sourcesPath + '/chart-module.js',
+        login: sourcesPath + '/login-module.js'
     },
     watch: NODE_ENV === 'development',
     output: {
