@@ -49,6 +49,8 @@ public class ModelState {
 
     private Boolean isTrafficLightsFlex;
 
+    private Boolean isDynamicTrafficFactor;
+
     private Boolean isFailed;
 
     private BigInteger overallCars = BigInteger.ZERO;

@@ -30,6 +30,8 @@ public class QuartModelInitializer implements ModelInitializer {
 
     private final TrafficGenerator trafficGenerator;
 
+    private static final QuartTrafficGenerate MINIMAL = new QuartTrafficGenerate(1, 1, 1, 1, 1, 1, 1, 1);
+
     public QuartModelInitializer(TrafficGenerator trafficGenerator) {
         this.trafficGenerator = trafficGenerator;
     }
@@ -37,18 +39,23 @@ public class QuartModelInitializer implements ModelInitializer {
     @Override
     public ModelState initializeModel(ModelSettings settings) {
         ModelState modelState = new ModelState();
-        modelState.setNetwork(buildNetwork(settings.getTrafficGenerate()));
+        modelState.setNetwork(buildNetwork(settings.getTrafficGenerate(), settings.getIsDynamicFactor()));
         modelState.setMaxDuration(BigDecimal.valueOf(10000));
+        modelState.setTime(BigDecimal.ZERO);
         modelState.setTimeDelta(BigDecimal.valueOf(1));
         modelState.setTrafficLights(buildTrafficLights(modelState.getNetwork()));
         modelState.setDrivers(new HashSet<>());
+        modelState.setIsDynamicTrafficFactor(settings.getIsDynamicFactor());
         modelState.setIsTrafficLightsFlex(settings.getIsFlex());
         modelState = trafficGenerator.generateTraffic(modelState);
         return modelState;
     }
 
-    private List<RoadLane> buildNetwork(QuartTrafficGenerate trafficGenerationFactor) {
+    private List<RoadLane> buildNetwork(QuartTrafficGenerate trafficGenerationFactor, Boolean isDynamic) {
         List<RoadLane> network = new LinkedList<>();
+        if (isDynamic) {
+            trafficGenerationFactor = MINIMAL;
+        }
         network.add(buildRoad(new Point(210,760), new Point(210, 50), trafficGenerationFactor.getRoad1()));
         network.add(buildRoad(new Point(200, 50), new Point(200,760), trafficGenerationFactor.getRoad2()));
         network.add(buildRoad(new Point(50,210), new Point(760, 210), trafficGenerationFactor.getRoad3()));

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +33,9 @@ public class SimpleTrafficGenerator implements TrafficGenerator {
     public ModelState generateTraffic(ModelState modelState) {
         Set<Driver> newDrivers = createDrivers(modelState.getNetwork());
         modelState.getDrivers().addAll(newDrivers);
+        if (modelState.getIsDynamicTrafficFactor() && modelState.getTime().remainder(BigDecimal.valueOf(150)).equals(BigDecimal.ZERO)) {
+            modelState.getNetwork().forEach(roadLane -> roadLane.setTrafficGeneratorFactor(RandomUtils.nextInt(1,20)));
+        }
         modelState.setOverallCars(modelState.getOverallCars().add(BigInteger.valueOf(newDrivers.size())));
         modelState.setCars(modelState.getDrivers().stream().map(Driver::getCar).collect(Collectors.toList()));
         return modelState;

@@ -10,7 +10,7 @@ Vue.use(VueMaterial);
 Vue.use(VueResource);
 
 
-Vue.use(VueNativeSock, `wss://${window.location.host}/event-tick`);
+Vue.use(VueNativeSock, `ws://${window.location.host}/event-tick`);
 
 Vue.component("index", index);
 
