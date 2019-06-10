@@ -15,7 +15,8 @@
                     <md-button class="md-raised init-button" @click="settingsPanel = !settingsPanel">
                         {{!this.settingsPanel ? 'Создать модель' : 'Закрыть'}}
                     </md-button>
-                    <md-button :disabled="active" class="md-raised btn" @click="loadModels">Показать сохраненные
+                    <md-button :disabled="active" class="md-raised btn" @click="loadModels">
+                        {{!this.modelList ? 'Показать' : 'Скрыть'}} сохраненные
                     </md-button>
                     <md-button class="md-raised md-accent model-button" v-if="id" @click="model">
                         {{!this.active ? "Начать моделирование": "Приостановить"}}
