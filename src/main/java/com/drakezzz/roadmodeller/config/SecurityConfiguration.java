@@ -22,8 +22,12 @@ public class SecurityConfiguration {
                 .permitAll()
                 .and()
                 .formLogin()
+                .loginPage("/login")
                 .and()
                 .httpBasic()
+                .and()
+                .logout()
+                .logoutUrl("/logout")
                 .and()
                 .build();
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Main Page</title>
+    <title>Главная страница</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=1280">
     <meta name="format-detection" content="telephone=no">
