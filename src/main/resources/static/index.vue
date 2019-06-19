@@ -80,17 +80,10 @@
                                         <md-input placeholder="Скоростной лимит"
                                                   v-model="roadLane.maxSpeedLimit"></md-input>
                                     </md-field>
-                                    <div>
+                                    <md-field>
                                         <label>Плотность движения {{roadLane.trafficGeneratorFactor}}</label>
-                                        <div class="traffic-slider">
-                                            <input type="range"
-                                                   class="slider"
-                                                   name="freq"
-                                                   min="5"
-                                                   max="20"
-                                                   v-model="roadLane.trafficGeneratorFactor"/>
-                                        </div>
-                                    </div>
+                                            <md-input v-model="roadLane.trafficGeneratorFactor"></md-input>
+                                    </md-field>
                                     <div v-for="coord of roadLane.coordinates">
                                         <md-field>
                                             <label>Координата X</label>
@@ -252,7 +245,9 @@
                     <md-textarea md-autogrow v-model="settingsString"></md-textarea>
                 </md-field>
                 <div>
-                    <md-button class="md-raised" :disabled="modelSettings.isNotInitialized" @click="showSettings">Экспорт настроек</md-button>
+                    <md-button class="md-raised" :disabled="modelSettings.isNotInitialized" @click="showSettings">
+                        Экспорт настроек
+                    </md-button>
                     <md-button class="md-raised md-accent" @click="init">Принять</md-button>
                 </div>
 
@@ -520,7 +515,7 @@
                     this.cars = modelState.drivers.length;
                     modelState.drivers.forEach((driver) => {
                         this.provider.context.fillStyle = "#8597eb";
-                        this.provider.context.fillRect(driver.crd.x, driver.crd.y, 10, 10)
+                        this.provider.context.fillRect(driver.crd.x, driver.crd.y, 8, 8)
                     });
                 }
                 this.time = modelState.time;

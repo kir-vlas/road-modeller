@@ -107,7 +107,7 @@ public class QuartModelInitializer implements ModelInitializer {
         return new LinkedList<>(trafficLights);
     }
 
-    private TrafficLight buildLight(Point coord) {
+    public static TrafficLight buildLight(Point coord) {
         TrafficLight trafficLight = new TrafficLight();
         trafficLight.setCoordinates(coord);
         trafficLight.setStatus(LightStatus.RED);
