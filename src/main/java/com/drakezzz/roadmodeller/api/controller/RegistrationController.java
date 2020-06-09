@@ -4,6 +4,7 @@ import com.drakezzz.roadmodeller.persistence.entity.User;
 import com.drakezzz.roadmodeller.service.UserService;
 import com.drakezzz.roadmodeller.web.dto.StatusResult;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @CrossOrigin
@@ -17,7 +18,7 @@ public class RegistrationController {
     }
 
     @PostMapping()
-    public StatusResult register(@RequestBody User user) {
+    public Mono<StatusResult> register(@RequestBody User user) {
         return userService.registerUser(user);
     }
 

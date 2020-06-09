@@ -5,6 +5,8 @@ import com.drakezzz.roadmodeller.persistence.repository.ModelStateRepository;
 import com.drakezzz.roadmodeller.service.ModelRepositoryProvider;
 import com.drakezzz.roadmodeller.web.dto.ModelId;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,27 +22,25 @@ public class ModelRepositoryProviderImpl implements ModelRepositoryProvider {
     }
 
     @Override
-    public void saveToDatabase(ModelState modelState) {
-        modelStateRepository.save(modelState);
+    public Mono<ModelState> saveToDatabase(ModelState modelState) {
+        return modelStateRepository.save(modelState);
     }
 
     @Override
-    public ModelState getModelState(String id) {
+    public Mono<ModelState> getModelState(String id) {
         return modelStateRepository
                 .findById(id)
-                .orElseThrow(NoSuchElementException::new);
+                .switchIfEmpty(Mono.error(NoSuchElementException::new));
     }
 
     @Override
-    public List<ModelId> getUnfinishedModels() {
+    public Flux<ModelId> getUnfinishedModels() {
         return modelStateRepository.findModelsIdByStatus()
-                .stream()
-                .map(ModelId::ofModelState)
-                .collect(Collectors.toList());
+                .map(ModelId::ofModelState);
     }
 
     @Override
-    public void removeModel(String id) {
-        modelStateRepository.deleteById(id);
+    public Mono<Void> removeModel(String id) {
+        return modelStateRepository.deleteById(id);
     }
 }

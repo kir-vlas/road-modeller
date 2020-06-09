@@ -7,6 +7,7 @@ import com.drakezzz.roadmodeller.service.ModelRepositoryProvider;
 import com.drakezzz.roadmodeller.service.StatisticService;
 import com.drakezzz.roadmodeller.web.dto.StatisticEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -24,33 +25,37 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public StatisticEntity getFullStatistic(String modelId) {
+    public Mono<StatisticEntity> getFullStatistic(String modelId) {
         return statisticEntityRepository
                 .findById(modelId)
-                .orElseGet(() -> getEmpty(modelId));
+                .switchIfEmpty(getEmpty(modelId));
     }
 
     @Override
-    public StatisticEntity getShortStatistic(String modelId) {
-        StatisticEntity statisticEntity = getFullStatistic(modelId);
-        ModelState modelState = modelRepositoryProvider.getModelState(modelId);
-        long waitingCars = modelState
-                .getDrivers().stream()
-                .filter(Driver::getIsWaitingGreenLight)
-                .count();
-        BigDecimal averageWaitingCars = BigDecimal.valueOf((double) waitingCars / ((double) modelState.getNetwork().size() / 2));
-        statisticEntity.getAverageWaitingTime().add(averageWaitingCars);
-        statisticEntity.setAverageWaitingCars(averageWaitingCars);
-        statisticEntity.setOverallCarsCount(modelState.getOverallCars());
-        statisticEntityRepository.save(statisticEntity);
-        return statisticEntity;
+    public Mono<StatisticEntity> getShortStatistic(String modelId) {
+        return getFullStatistic(modelId)
+                .zipWith(modelRepositoryProvider.getModelState(modelId))
+                .map(tuple -> {
+                    StatisticEntity statisticEntity = tuple.getT1();
+                    ModelState modelState = tuple.getT2();
+                    long waitingCars = modelState
+                            .getDrivers().stream()
+                            .filter(Driver::getIsWaitingGreenLight)
+                            .count();
+                    BigDecimal averageWaitingCars = BigDecimal.valueOf((double) waitingCars / ((double) modelState.getNetwork().size() / 2));
+                    statisticEntity.getAverageWaitingTime().add(averageWaitingCars);
+                    statisticEntity.setAverageWaitingCars(averageWaitingCars);
+                    statisticEntity.setOverallCarsCount(modelState.getOverallCars());
+                    return statisticEntity;
+                })
+                .flatMap(statisticEntityRepository::save);
     }
 
-    private StatisticEntity getEmpty(String id) {
+    private Mono<StatisticEntity> getEmpty(String id) {
         StatisticEntity statisticEntity = new StatisticEntity();
         statisticEntity.setDrivers(new HashSet<>());
         statisticEntity.setId(id);
-        return statisticEntity;
+        return Mono.just(statisticEntity);
     }
 
 }

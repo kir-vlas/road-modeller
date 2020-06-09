@@ -4,9 +4,9 @@ import com.drakezzz.roadmodeller.executor.ContiniusActionExecutor;
 import com.drakezzz.roadmodeller.service.ModelRepositoryProvider;
 import com.drakezzz.roadmodeller.service.StatisticService;
 import com.drakezzz.roadmodeller.web.dto.*;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -25,43 +25,36 @@ public class ModellerController {
         this.modelRepositoryProvider = modelRepositoryProvider;
     }
 
-    @ApiOperation("Инициализация модели")
     @PostMapping("/init")
-    public ModelId initModel(@RequestBody @ApiParam("Настройки для инициализации модели") ModelSettings modelSettings) {
-        String id = executor.initAction(modelSettings);
-        return new ModelId(id);
+    public Mono<ModelId> initModel(@RequestBody ModelSettings modelSettings) {
+        return executor.initAction(modelSettings)
+                .map(ModelId::new);
     }
 
-    @ApiOperation("Изменение параметров модели")
     @PutMapping("/{modelId}/update")
-    public StatusResult editModel(@PathVariable String modelId, @RequestBody SettingsUpdate settingsUpdate) {
+    public Mono<StatusResult> editModel(@PathVariable String modelId, @RequestBody SettingsUpdate settingsUpdate) {
         return executor.updateModel(modelId, settingsUpdate);
     }
 
-    @ApiOperation("Получение полной статистики модели")
     @GetMapping("/{modelId}")
-    public StatisticEntity getStatistic(@PathVariable @ApiParam("Идентификатор модели") String modelId) {
+    public Mono<StatisticEntity> getStatistic(@PathVariable String modelId) {
         return statisticService.getFullStatistic(modelId);
     }
 
-    @ApiOperation("Получение моментальной статистики модели")
     @GetMapping("/{modelId}/short")
-    public StatisticEntity getShortStatistic(@PathVariable @ApiParam("Идентификатор модели") String modelId) {
+    public Mono<StatisticEntity> getShortStatistic(@PathVariable String modelId) {
         return statisticService.getShortStatistic(modelId);
     }
 
-    @ApiOperation("Получение списка незавершенных моделей")
     @GetMapping
-    public List<ModelId> getUnfinishedModelList() {
+    public Flux<ModelId> getUnfinishedModelList() {
         return modelRepositoryProvider.getUnfinishedModels();
     }
 
-    @ApiOperation("Удаление модели из базы данных")
     @DeleteMapping("/{modelId}")
-    public void removeModel(@PathVariable @ApiParam("Идентификатор модели") String modelId) {
-        modelRepositoryProvider.removeModel(modelId);
+    public Mono<Void> removeModel(@PathVariable String modelId) {
+        return modelRepositoryProvider.removeModel(modelId);
     }
-
 
 
 }

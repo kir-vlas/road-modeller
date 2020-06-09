@@ -13,10 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * Main action executor for modelling
@@ -37,7 +39,7 @@ public class ModellerExecutor implements ContiniusActionExecutor {
     }
 
     @Override
-    public String initAction(ModelSettings settings) {
+    public Mono<String> initAction(ModelSettings settings) {
         ModelState modelState;
         if (settings.getIsNotInitialized()) {
             modelState = modelInitializer.initializeModel(settings);
@@ -51,32 +53,36 @@ public class ModellerExecutor implements ContiniusActionExecutor {
         modelState.setIsCompleted(false);
         modelState.setIsFailed(false);
         modelState.setStep(0);
-        modelRepositoryProvider.saveToDatabase(modelState);
-        String modelId = modelState.getUuid();
-        log.debug("Initialized model with id = [{}]", modelId);
-        return modelId;
+        return modelRepositoryProvider.saveToDatabase(modelState)
+                .map(ModelState::getUuid);
     }
 
     @Override
-    public ModelState executeAction(String actionId) {
-        ModelState modelState = modelRepositoryProvider.getModelState(actionId);
-        if (modelState.getIsFailed()) {
-            return modelState;
-        }
-        try {
-            modelState = simulationProcessor.simulate(modelState);
-        } catch (RuntimeException ex) {
-            log.error("Error with model processing with id = [{}]. Stopping modelling. Error = {}", actionId, ex);
-            modelState.setIsCompleted(true);
-            modelState.setIsFailed(true);
-        }
-        modelRepositoryProvider.saveToDatabase(modelState);
-        return modelState;
+    public Mono<ModelState> executeAction(String actionId) {
+        return modelRepositoryProvider.getModelState(actionId)
+                .filter(Predicate.not(ModelState::getIsFailed))
+                .map(simulationProcessor::simulate)
+                .onErrorResume(ex -> {
+                    log.error("Error with model processing with id = [{}]. Stopping modelling. Error = {}", actionId, ex);
+                    ModelState modelState = new ModelState();
+                    modelState.setUuid(actionId);
+                    modelState.setIsCompleted(true);
+                    modelState.setIsFailed(true);
+                    return Mono.just(modelState);
+                })
+                .flatMap(modelRepositoryProvider::saveToDatabase);
     }
 
     @Override
-    public StatusResult updateModel(String modelId, SettingsUpdate settingsUpdate) {
-        ModelState modelState = modelRepositoryProvider.getModelState(modelId);
+    public Mono<StatusResult> updateModel(String modelId, SettingsUpdate settingsUpdate) {
+        return modelRepositoryProvider.getModelState(modelId)
+                .map(modelState ->
+                        updateModelState(modelState, settingsUpdate))
+                .flatMap(modelRepositoryProvider::saveToDatabase)
+                .map(modelState -> StatusResult.ok());
+    }
+
+    private ModelState updateModelState(ModelState modelState, SettingsUpdate settingsUpdate) {
         modelState.getTrafficLights().forEach(trafficLight -> {
             trafficLight.setRedDelay(settingsUpdate.getRedDelay());
             trafficLight.setGreenDelay(settingsUpdate.getGreenDelay());
@@ -91,9 +97,6 @@ public class ModellerExecutor implements ContiniusActionExecutor {
                 trafficLight.setCurrentDuration(duration);
             });
         }
-        modelRepositoryProvider.saveToDatabase(modelState);
-        return StatusResult.ok();
+        return modelState;
     }
-
-
 }
