@@ -60,7 +60,6 @@ public class ModellerExecutor implements ContiniusActionExecutor {
     @Override
     public Mono<ModelState> executeAction(String actionId) {
         return modelRepositoryProvider.getModelState(actionId)
-                .filter(Predicate.not(ModelState::getIsFailed))
                 .map(simulationProcessor::simulate)
                 .onErrorResume(ex -> {
                     log.error("Error with model processing with id = [{}]. Stopping modelling. Error = {}", actionId, ex);
