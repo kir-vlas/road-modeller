@@ -2,9 +2,10 @@ package com.drakezzz.roadmodeller.service;
 
 import com.drakezzz.roadmodeller.persistence.entity.User;
 import com.drakezzz.roadmodeller.web.dto.StatusResult;
+import reactor.core.publisher.Mono;
 
 public interface UserService {
 
-    StatusResult registerUser(User user);
+    Mono<StatusResult> registerUser(User user);
 
 }

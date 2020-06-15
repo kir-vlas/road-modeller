@@ -38,7 +38,7 @@ public class RoadModellerWebSocketHandler implements WebSocketHandler {
         return webSocketSession.send(
                 webSocketSession.receive()
                         .map(WebSocketMessage::getPayloadAsText)
-                        .map(actionExecutor::executeAction)
+                        .flatMap(actionExecutor::executeAction)
                         .map(ModelDto::of)
                         .map(this::serialize)
                         .map(webSocketSession::textMessage));

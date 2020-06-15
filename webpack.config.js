@@ -8,7 +8,7 @@ const NODE_ENV = process.env.NODE_ENV;
 console.log("BUILD MODE IS " + NODE_ENV);
 
 
-const outputPath = './target/classes/static/dist';
+const outputPath = './src/main/resources/static/dist';
 const sourcesPath = './src/main/resources/static';
 
 module.exports = {

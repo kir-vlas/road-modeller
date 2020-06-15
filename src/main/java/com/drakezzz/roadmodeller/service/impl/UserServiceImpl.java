@@ -29,22 +29,25 @@ public class UserServiceImpl implements UserService, ReactiveUserDetailsService 
     }
 
     @Override
-    public StatusResult registerUser(User user) {
-        user.setCreatedAt(LocalDateTime.now());
-        user.setPassword(encoder.encode(user.getPassword()));
-        userRepository.save(user);
-        return StatusResult.ok();
+    public Mono<StatusResult> registerUser(User user) {
+        return Mono.just(user)
+                .map(user1 -> {
+                    user.setCreatedAt(LocalDateTime.now());
+                    user.setPassword(encoder.encode(user.getPassword()));
+                    return user;
+                })
+                .flatMap(userRepository::save)
+                .map(user1 -> StatusResult.ok());
     }
 
     @Override
     public Mono<UserDetails> findByUsername(String username) {
-        User user = userRepository.findByUsername(username);
-        if(user == null) {
-            return Mono.empty();
-        }
-
-        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("user"));
-        return Mono.just(new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities));
+        return userRepository.findByUsername(username)
+                .map(user -> {
+                    List<SimpleGrantedAuthority> authorities
+                            = Collections.singletonList(new SimpleGrantedAuthority("user"));
+                    return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+                });
     }
 
 }

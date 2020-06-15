@@ -31,6 +31,9 @@ public class QuartScenarioSimulationProcessor implements SimulationProcessor {
 
     @Override
     public ModelState simulate(ModelState modelState) {
+        if (modelState.getIsFailed()) {
+            return modelState;
+        }
         if (modelState.getTime().compareTo(modelState.getMaxDuration()) < 0) {
             modelState.incrementStep();
             generateTraffic(modelState);
