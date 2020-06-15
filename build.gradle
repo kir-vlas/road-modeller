@@ -1,0 +1,70 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.springframework.boot' version '2.3.0.RELEASE'
+    id 'com.github.node-gradle.node' version '2.2.4'
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'base'
+apply plugin: 'com.github.node-gradle.node'
+
+repositories {
+    mavenCentral()
+}
+
+node {
+    download = true
+    version = "12.18.0"
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-freemarker:2.3.0.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-integration:2.3.0.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.3.0.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-security:2.3.0.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.3.0.RELEASE'
+    implementation 'javax.websocket:javax.websocket-api:1.1'
+    compileOnly('org.projectlombok:lombok:1.18.12')
+    annotationProcessor('org.projectlombok:lombok:1.18.12')
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'org.apache.commons:commons-lang3:3.4'
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'org.springframework.boot:spring-boot-starter-test:2.3.0.RELEASE'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.4'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools:2.3.0.RELEASE'
+}
+
+group = 'com.drakezzz'
+version = '1.2.0-RELEASE'
+sourceCompatibility = 11
+
+bootJar {
+    archiveFileName = "${project.name}.jar"
+}
+
+task npmInstallDependencies(type: NpmTask) {
+    description = "Install dependencies from package.json"
+    args = ['install']
+}
+
+task webpackDevServer(type: NpmTask) {
+    dependsOn npmInstallDependencies
+    args = ['run', 'dev']
+}
+
+task npmRunBuild(type: NpmTask) {
+    dependsOn npmInstallDependencies
+    workingDir = file("${project.projectDir}/src/main/resources/static")
+    inputs.dir file("${project.projectDir}/src/main/resources/static")
+    outputs.dir file("${project.projectDir}/src/main/resources/static/dist")
+    args = ['run', 'build']
+}
+
+compileJava.dependsOn npmRunBuild
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

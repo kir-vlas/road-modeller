@@ -4,13 +4,14 @@ import com.drakezzz.roadmodeller.persistence.entity.ModelState;
 import com.drakezzz.roadmodeller.web.dto.ModelSettings;
 import com.drakezzz.roadmodeller.web.dto.SettingsUpdate;
 import com.drakezzz.roadmodeller.web.dto.StatusResult;
+import reactor.core.publisher.Mono;
 
 public interface ContiniusActionExecutor {
 
-    String initAction(ModelSettings modelSettings);
+    Mono<String> initAction(ModelSettings modelSettings);
 
-    ModelState executeAction(String actionId);
+    Mono<ModelState> executeAction(String actionId);
 
-    StatusResult updateModel(String modelId, SettingsUpdate settingsUpdate);
+    Mono<StatusResult> updateModel(String modelId, SettingsUpdate settingsUpdate);
 
 }

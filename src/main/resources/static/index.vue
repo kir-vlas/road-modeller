@@ -352,12 +352,9 @@
                 cars: 0,
                 maxDuration: 0,
                 time: 0,
-                carImage: null,
             }
         },
         created() {
-            this.carImage = new Image();
-            this.carImage.src = '/static/car.svg';
             this.$options.sockets.onmessage = (data) => {
                 const modelState = JSON.parse(data.data);
                 let isCompleted = modelState.isCompleted;
